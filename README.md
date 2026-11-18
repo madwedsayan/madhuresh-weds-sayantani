@@ -35,7 +35,7 @@ Portrait images (3:4) fit the arches best.
 
 ### Music
 
-`public/audio/wedding.mp3` is a CC BY-SA 4.0 sitar & tabla recording (see `public/audio/CREDITS.txt`). The credit is shown in the footer from `audio.credit`. Replace the file with your own track and update or clear `audio.credit`. Music is **off until the guest taps** the 🎵 button. If the file is missing, a synthesised tanpura and santoor plays instead. The conch + ulu on opening is synthesised live; turn it off with `audio.playConchOnOpen: false`.
+`public/audio/wedding.mp3` is a CC BY-SA 4.0 sitar & tabla recording (see `public/audio/CREDITS.txt`). The credit is shown in the footer from `audio.credit`. Replace the file with your own track and update or clear `audio.credit`. The music fades in when the guest taps to unveil the invitation; the 🎵 button pauses and resumes it. To keep it off until the 🎵 button is tapped, set `audio.playMusicOnOpen: false`. If the file is missing, a synthesised tanpura and santoor plays instead.
 
 ### RSVP → Google Sheet (optional)
 

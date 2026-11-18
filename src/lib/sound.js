@@ -1,7 +1,6 @@
 /**
- * Synthesised (license-free) ceremonial sounds via Web Audio:
- *  - playConchAndUlu(): a shankha blow followed by a soft ulu-dhwani trill.
- *  - startDroneMusic(): fallback ambient tanpura drone + santoor-like plucks
+ * Synthesised (license-free) fallback music via Web Audio:
+ *  - startDroneMusic(): ambient tanpura drone + santoor-like plucks
  *    (used only if /audio/wedding.mp3 is missing or fails to load).
  */
 let ctx
@@ -13,73 +12,6 @@ export function getCtx() {
   }
   if (ctx.state === 'suspended') ctx.resume()
   return ctx
-}
-
-export function playConchAndUlu(volume = 0.5) {
-  const ac = getCtx()
-  if (!ac) return
-  const t = ac.currentTime + 0.05
-  const out = ac.createGain()
-  out.gain.value = volume
-  out.connect(ac.destination)
-
-  // ── Shankha: rich buzzy tone that swells, with a slight upward bend
-  const conchGain = ac.createGain()
-  conchGain.gain.setValueAtTime(0.0001, t)
-  conchGain.gain.exponentialRampToValueAtTime(0.5, t + 0.45)
-  conchGain.gain.setValueAtTime(0.5, t + 1.4)
-  conchGain.gain.exponentialRampToValueAtTime(0.0001, t + 2.3)
-  const lp = ac.createBiquadFilter()
-  lp.type = 'lowpass'
-  lp.frequency.setValueAtTime(700, t)
-  lp.frequency.linearRampToValueAtTime(1800, t + 0.6)
-  lp.Q.value = 6
-  lp.connect(conchGain).connect(out)
-  const vib = ac.createOscillator()
-  vib.frequency.value = 5.5
-  const vibAmt = ac.createGain()
-  vibAmt.gain.value = 3
-  vib.connect(vibAmt)
-  ;[1, 2, 3].forEach((h, i) => {
-    const o = ac.createOscillator()
-    o.type = i === 0 ? 'sawtooth' : 'triangle'
-    o.frequency.setValueAtTime(233 * h * 0.97, t)
-    o.frequency.linearRampToValueAtTime(233 * h, t + 0.5)
-    o.frequency.linearRampToValueAtTime(233 * h * 1.03, t + 2.2)
-    vibAmt.connect(o.frequency)
-    const g = ac.createGain()
-    g.gain.value = [0.6, 0.25, 0.12][i]
-    o.connect(g).connect(lp)
-    o.start(t)
-    o.stop(t + 2.4)
-  })
-  vib.start(t)
-  vib.stop(t + 2.4)
-
-  // ── Ulu-dhwani: high voice with rapid tongue-trill amplitude modulation
-  const u0 = t + 1.6
-  const ulu = ac.createOscillator()
-  ulu.type = 'sine'
-  ulu.frequency.setValueAtTime(980, u0)
-  ulu.frequency.linearRampToValueAtTime(1120, u0 + 0.8)
-  ulu.frequency.linearRampToValueAtTime(1040, u0 + 1.6)
-  const trill = ac.createOscillator()
-  trill.frequency.value = 8.5
-  const trillDepth = ac.createGain()
-  trillDepth.gain.value = 0.5
-  const uluAmp = ac.createGain()
-  uluAmp.gain.value = 0.5
-  trill.connect(trillDepth).connect(uluAmp.gain)
-  const uluEnv = ac.createGain()
-  uluEnv.gain.setValueAtTime(0.0001, u0)
-  uluEnv.gain.exponentialRampToValueAtTime(0.12, u0 + 0.2)
-  uluEnv.gain.setValueAtTime(0.12, u0 + 1.2)
-  uluEnv.gain.exponentialRampToValueAtTime(0.0001, u0 + 1.7)
-  ulu.connect(uluAmp).connect(uluEnv).connect(out)
-  ulu.start(u0)
-  trill.start(u0)
-  ulu.stop(u0 + 1.8)
-  trill.stop(u0 + 1.8)
 }
 
 // ── Fallback ambient music ─────────────────────────────────────────────────

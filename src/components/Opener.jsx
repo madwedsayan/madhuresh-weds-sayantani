@@ -3,7 +3,7 @@ import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from
 import LanternField, { Stars } from './Lanterns'
 import { PaanLeaf, AlponaLotus, Butterfly } from './motifs/Motifs'
 import { archPath } from './motifs/Arch'
-import { playConchAndUlu } from '../lib/sound'
+import { playMusic, preloadMusic } from '../lib/music'
 import { rng } from '../lib/random'
 import config from '../config/inviteConfig'
 
@@ -45,20 +45,19 @@ export default function Opener({ onOpen }) {
   const open = () => {
     if (stage !== 'closed') return
     setStage('parting')
-    if (config.audio.playConchOnOpen) {
-      try {
-        playConchAndUlu(0.45)
-      } catch {
-        /* audio is optional */
-      }
-    }
-    if (navigator.vibrate) navigator.vibrate(30)
-    setTimeout(() => setStage('entering'), 2100)
+    // The tap starts the wedding music (no sound effects). Must run inside the tap for mobile autoplay rules.
+    if (config.audio.playMusicOnOpen) playMusic({ fadeMs: 3000 })
+    // Slow, graceful reveal: leaves drift apart, then we glide through the arch.
+    setTimeout(() => setStage('entering'), 3300)
     setTimeout(() => {
       setStage('gone')
       onOpen()
-    }, 3100)
+    }, 5600)
   }
+
+  useEffect(() => {
+    if (config.audio.playMusicOnOpen) preloadMusic()
+  }, [])
 
   const petals = useMemo(() => {
     const r = rng(42)
@@ -87,7 +86,7 @@ export default function Opener({ onOpen }) {
           tabIndex={0}
           aria-label="Tap to open the invitation"
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={{ duration: 1.4, ease: 'easeInOut' }}
           style={{ background: 'linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 55%, var(--sky-3) 100%)' }}
         >
           <Stars count={60} />
@@ -96,8 +95,8 @@ export default function Opener({ onOpen }) {
 
           <motion.div
             className="absolute inset-0 grid place-items-center"
-            animate={stage === 'entering' ? { scale: 2.4, opacity: 0 } : { scale: 1, opacity: 1 }}
-            transition={{ duration: 1, ease: [0.6, 0, 0.3, 1] }}
+            animate={stage === 'entering' ? { scale: 1.7, opacity: 0, filter: 'blur(2px)' } : { scale: 1, opacity: 1, filter: 'blur(0px)' }}
+            transition={{ duration: 2.4, ease: [0.45, 0, 0.25, 1] }}
             style={{ perspective: 1000 }}
           >
             {/* The arched card behind the leaves */}
@@ -148,10 +147,10 @@ export default function Opener({ onOpen }) {
                 initial={{ rotate: side * 10, x: 0 }}
                 animate={
                   parted
-                    ? { x: `${side * 110}vw`, rotate: side * 50, rotateY: side * -75, opacity: 0 }
+                    ? { x: `${side * 110}vw`, rotate: side * 40, rotateY: side * -60, opacity: [1, 1, 0] }
                     : { rotate: [side * 10, side * 6, side * 10] }
                 }
-                transition={parted ? { duration: 1.7, ease: [0.7, 0, 0.2, 1] } : { duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                transition={parted ? { duration: 3.2, ease: [0.45, 0, 0.3, 1] } : { duration: 4, repeat: Infinity, ease: 'easeInOut' }}
               >
                 <motion.div style={{ rotateY: rotY, rotateX: rotX }}>
                   <PaanLeaf id={`paan${side}`} flip={side === 1} className="h-auto w-full" />
@@ -189,7 +188,7 @@ export default function Opener({ onOpen }) {
                 style={{ left: `${p.x}%`, width: p.s, height: p.s, background: p.c }}
                 initial={{ y: 0, rotate: 0, opacity: 1 }}
                 animate={{ y: '115vh', x: p.drift, rotate: p.rot, opacity: [1, 1, 0.8] }}
-                transition={{ duration: p.d, delay: p.delay, ease: 'easeIn' }}
+                transition={{ duration: p.d * 1.8, delay: p.delay * 1.5, ease: 'easeIn' }}
               />
             ))}
         </motion.div>

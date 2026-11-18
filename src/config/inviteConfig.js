@@ -238,7 +238,7 @@ const inviteConfig = {
     src: '/audio/wedding.mp3',
     // Required attribution for the bundled CC BY-SA track — change/clear it if you replace the mp3.
     credit: 'Music: “Sitar and tabla rendition – Freedom Jam 2015”, Ashok Ayengar, CC BY-SA 4.0 via Wikimedia Commons',
-    playConchOnOpen: true, // conch + soft ulu when the paan leaves part
+    playMusicOnOpen: true, // music fades in when the guest taps to unveil (no sound effects)
   },
 
   // Theme the guest sees first: 'pastel' | 'royal' | 'night'
