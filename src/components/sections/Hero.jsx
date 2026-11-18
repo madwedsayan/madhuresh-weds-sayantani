@@ -10,7 +10,7 @@ import config from '../../config/inviteConfig'
 function Crest() {
   const { groom, bride } = config.couple
   return (
-    <div className="relative mx-auto w-[min(86vw,460px)] text-center">
+    <div className="relative mx-auto flex w-[min(94vw,1000px)] flex-col items-center text-center">
       {/* Emblem: Rumi-Darwaza cusped arch enclosing an Alpona lotus */}
       <div className="relative mx-auto h-[118px] w-[96px] drop-shadow-[0_0_14px_rgba(255,210,122,.45)]">
         <svg viewBox="-4 -14 108 138" className="absolute inset-0 h-full w-full overflow-visible" aria-hidden>

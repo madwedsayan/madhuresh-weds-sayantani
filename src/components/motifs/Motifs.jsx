@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 
 const draw = {
@@ -177,7 +178,7 @@ export function Butterfly({ className = '', color = 'currentColor' }) {
 /** Betel (paan) leaf — heart-shaped with veins. Used for the Shubho Drishti opener. */
 export function PaanLeaf({ className = '', flip = false, id = 'paan' }) {
   return (
-    <svg viewBox="0 0 200 260" className={className} style={flip ? { transform: 'scaleX(-1)' } : undefined} aria-hidden>
+    <svg viewBox="-12 -8 224 290" className={className} style={flip ? { transform: 'scaleX(-1)' } : undefined} aria-hidden>
       <defs>
         <radialGradient id={`${id}-g`} cx="40%" cy="35%" r="75%">
           <stop offset="0" stopColor="#8fd16a" />
@@ -188,7 +189,13 @@ export function PaanLeaf({ className = '', flip = false, id = 'paan' }) {
           <stop offset="0" stopColor="#fff" stopOpacity=".35" />
           <stop offset=".5" stopColor="#fff" stopOpacity="0" />
         </linearGradient>
+        <radialGradient id={`${id}-shadow`} cx="50%" cy="50%" r="50%">
+          <stop offset="0" stopColor="#000" stopOpacity=".38" />
+          <stop offset="1" stopColor="#000" stopOpacity="0" />
+        </radialGradient>
       </defs>
+      {/* soft shadow baked into the SVG — cheaper than a CSS drop-shadow while animating */}
+      <ellipse cx="104" cy="150" rx="104" ry="122" fill={`url(#${id}-shadow)`} transform="translate(6 14)" />
       <path
         d="M100 252 C 96 236, 40 200, 18 150 C -6 96, 14 36, 58 22 C 80 15, 94 26, 100 40 C 106 26, 120 15, 142 22 C 186 36, 206 96, 182 150 C 160 200, 104 236, 100 252 Z"
         fill={`url(#${id}-g)`}
@@ -216,29 +223,53 @@ export function PaanLeaf({ className = '', flip = false, id = 'paan' }) {
   )
 }
 
-/** Marigold + mango-leaf toran (door garland). */
+/**
+ * Marigold + mango-leaf toran (door garland).
+ * The viewBox follows the element's real aspect ratio, so wide screens get MORE strands
+ * (never a zoomed-in, cropped garland).
+ */
 export function Toran({ className = '' }) {
-  const strands = 9
+  const ref = useRef(null)
+  const [vbW, setVbW] = useState(400)
+  const H = 92
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const update = () => {
+      const r = el.getBoundingClientRect()
+      if (r.width && r.height) setVbW(Math.max(200, Math.round((r.width / r.height) * H)))
+    }
+    update()
+    const ro = new ResizeObserver(update)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  const gap = 44
+  const strands = Math.max(5, Math.round((vbW - 40) / gap) + 1)
+  const step = (vbW - 40) / (strands - 1)
+  const sag = 16
+  const yAt = (x) => 6 + Math.sin((x / vbW) * Math.PI) * sag
   return (
-    <svg viewBox="0 0 400 90" preserveAspectRatio="xMidYMin slice" className={className} aria-hidden>
-      <path d="M0 6 Q200 30 400 6" stroke="var(--gold)" strokeWidth="3" fill="none" />
+    <svg ref={ref} viewBox={`0 0 ${vbW} ${H}`} preserveAspectRatio="xMidYMin meet" className={className} aria-hidden>
+      <path d={`M0 6 Q${vbW / 2} ${6 + sag * 2} ${vbW} 6`} stroke="var(--gold)" strokeWidth="3" fill="none" />
       {Array.from({ length: strands }).map((_, i) => {
-        const x = 20 + i * (360 / (strands - 1))
-        const y0 = 6 + Math.sin((x / 400) * Math.PI) * 12
-        const len = i % 2 ? 46 : 64
+        const x = 20 + i * step
+        const y0 = yAt(x)
+        const len = i % 2 ? 40 : 56
         return (
-          <g key={i} className="sway" style={{ transformOrigin: `${x}px ${y0}px`, animationDelay: `${i * 0.3}s` }}>
+          <g key={i} className="sway" style={{ transformOrigin: `${x}px ${y0}px`, animationDelay: `${(i % 7) * 0.3}s` }}>
             {Array.from({ length: Math.round(len / 9) }).map((_, j) => (
               <circle key={j} cx={x} cy={y0 + 6 + j * 9} r="5" fill={j % 3 === 2 ? '#d9480f' : j % 2 ? '#f59f00' : '#ffb703'} />
             ))}
-            <path d={`M${x} ${y0 + len + 6} q-6 10 0 22 q6 -12 0 -22`} fill="#2f6b3a" />
+            <path d={`M${x} ${y0 + len + 6} q-6 10 0 20 q6 -10 0 -20`} fill="#2f6b3a" />
           </g>
         )
       })}
       {Array.from({ length: strands - 1 }).map((_, i) => {
-        const x = 20 + (i + 0.5) * (360 / (strands - 1))
-        const y0 = 6 + Math.sin((x / 400) * Math.PI) * 12
-        return <path key={i} d={`M${x} ${y0} q-8 14 0 30 q8 -16 0 -30`} fill="#3d8a47" stroke="#1f4d27" strokeWidth=".6" />
+        const x = 20 + (i + 0.5) * step
+        const y0 = yAt(x)
+        return <path key={i} d={`M${x} ${y0} q-8 13 0 28 q8 -15 0 -28`} fill="#3d8a47" stroke="#1f4d27" strokeWidth=".6" />
       })}
     </svg>
   )

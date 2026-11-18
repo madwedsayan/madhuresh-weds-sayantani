@@ -5,6 +5,7 @@ import FloatingControls from './components/FloatingControls'
 import Hero from './components/sections/Hero'
 import Family from './components/sections/Family'
 import Couple from './components/sections/Couple'
+import BengaliSymbols from './components/sections/BengaliSymbols'
 import Events from './components/sections/Events'
 import Procession from './components/sections/Procession'
 import ThingsToKnow from './components/sections/ThingsToKnow'
@@ -25,6 +26,7 @@ const readTheme = () => {
 
 export default function App() {
   const [opened, setOpened] = useState(false)
+  const [live, setLive] = useState(false) // site animations resume only once the opener has fully faded
   const [theme, setTheme] = useState(readTheme)
 
   useEffect(() => {
@@ -51,11 +53,14 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <Opener onOpen={() => setOpened(true)} />
-      <main aria-hidden={!opened}>
+      <Opener onOpen={() => setOpened(true)} onExitComplete={() => setLive(true)} />
+      {/* Painted once at load behind the opener, but with every CSS animation paused until it
+          opens — so phones spend their GPU on the reveal and there's no first-paint hitch after it. */}
+      <main aria-hidden={!opened} className={live ? undefined : 'anim-paused'}>
         <Hero />
         <Family />
         <Couple />
+        <BengaliSymbols />
         <Events />
         <Procession />
         <ThingsToKnow />

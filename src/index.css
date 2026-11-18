@@ -181,12 +181,41 @@ body.locked {
   to { background-position: -200% 0; }
 }
 
+/* opacity-only on purpose: a CSS transform here would override SVG `transform` attributes
+   (e.g. translate(...)) and throw the shape to the SVG origin */
 @keyframes flicker {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  45% { opacity: 0.82; transform: scale(0.97); }
-  70% { opacity: 0.95; transform: scale(1.02); }
+  0%, 100% { opacity: 1; }
+  45% { opacity: 0.78; }
+  70% { opacity: 0.94; }
 }
 .flicker { animation: flicker 2.6s ease-in-out infinite; }
+
+/* ── River (finale panorama) ── */
+@keyframes river-flow { to { stroke-dashoffset: -600; } }
+.river-flow { animation: river-flow 12s linear infinite; }
+@keyframes river-shimmer {
+  0%, 100% { transform: skewX(0deg) scaleY(1); }
+  50% { transform: skewX(1.5deg) scaleY(0.97); }
+}
+.river-shimmer { transform-box: fill-box; transform-origin: 50% 100%; animation: river-shimmer 5s ease-in-out infinite; }
+@keyframes river-glint {
+  0%, 100% { opacity: 0.15; transform: scaleY(0.6); }
+  50% { opacity: 0.6; transform: scaleY(1); }
+}
+.river-glint { transform-box: fill-box; transform-origin: 50% 0%; animation: river-glint 2.6s ease-in-out infinite; }
+@keyframes boat-drift {
+  0% { transform: translate(-80px, 0); }
+  50% { transform: translate(800px, 3px); }
+  100% { transform: translate(1700px, 0); }
+}
+.boat-drift { animation: boat-drift 70s linear infinite; }
+
+@keyframes petal-fall {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(var(--drift), 112vh, 0) rotate(var(--spin)); opacity: 0.7; }
+}
+.petal { animation: petal-fall 6s cubic-bezier(.35,.1,.6,1) both; will-change: transform; }
 
 @keyframes sway {
   0%, 100% { transform: translateX(0) rotate(-2deg); }
@@ -211,6 +240,13 @@ body.locked {
 
 .tilt-scene { perspective: 1100px; }
 
+/* behind the opener: freeze all looping CSS animations */
+.anim-paused *,
+.anim-paused *::before,
+.anim-paused *::after {
+  animation-play-state: paused !important;
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .flicker, .sway, .ring, .gold-text { animation: none !important; }
+  .flicker, .sway, .ring, .gold-text, .river-flow, .river-shimmer, .river-glint, .boat-drift { animation: none !important; }
 }

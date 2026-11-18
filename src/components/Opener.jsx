@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
+import { AnimatePresence, MotionConfig, motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import LanternField, { Stars } from './Lanterns'
 import { PaanLeaf, AlponaLotus, Butterfly } from './motifs/Motifs'
 import { archPath } from './motifs/Arch'
@@ -9,10 +9,10 @@ import config from '../config/inviteConfig'
 
 /**
  * Shubho Drishti opener — like the Bengali bride hiding her face behind paan leaves,
- * the invitation is veiled by two betel leaves. A tap parts them (CSS 3D), plays a
- * conch + ulu, showers marigold petals and walks the guest through the arch.
+ * the invitation is veiled by two betel leaves. A tap parts them (CSS 3D),
+ * fades in the music, showers marigold petals and glides the guest through the arch.
  */
-export default function Opener({ onOpen }) {
+export default function Opener({ onOpen, onExitComplete }) {
   const [stage, setStage] = useState('closed') // closed → parting → entering → gone
   const { groom, bride } = config.couple
 
@@ -48,11 +48,11 @@ export default function Opener({ onOpen }) {
     // The tap starts the wedding music (no sound effects). Must run inside the tap for mobile autoplay rules.
     if (config.audio.playMusicOnOpen) playMusic({ fadeMs: 3000 })
     // Slow, graceful reveal: leaves drift apart, then we glide through the arch.
-    setTimeout(() => setStage('entering'), 3300)
+    setTimeout(() => setStage('entering'), 3400)
     setTimeout(() => {
       setStage('gone')
       onOpen()
-    }, 5600)
+    }, 5900)
   }
 
   useEffect(() => {
@@ -61,10 +61,10 @@ export default function Opener({ onOpen }) {
 
   const petals = useMemo(() => {
     const r = rng(42)
-    return Array.from({ length: 34 }).map(() => ({
+    return Array.from({ length: 26 }).map(() => ({
       x: r() * 100,
-      d: 2.4 + r() * 2.4,
-      delay: r() * 1.2,
+      d: 4.5 + r() * 3.5,
+      delay: r() * 1.8,
       s: 8 + r() * 10,
       c: ['#f59f00', '#ffb703', '#f77f00', '#d9480f', '#fff3bf'][Math.floor(r() * 5)],
       rot: r() * 720 - 360,
@@ -75,7 +75,10 @@ export default function Opener({ onOpen }) {
   const parted = stage !== 'closed'
 
   return (
-    <AnimatePresence>
+    // The reveal is slow and gentle, so it plays even with iOS "Reduce Motion" on
+    // (otherwise Framer skips every transform and the opener cuts instantly).
+    <MotionConfig reducedMotion="never">
+    <AnimatePresence onExitComplete={() => requestAnimationFrame(() => onExitComplete?.())}>
       {stage !== 'gone' && (
         <motion.div
           key="opener"
@@ -95,9 +98,9 @@ export default function Opener({ onOpen }) {
 
           <motion.div
             className="absolute inset-0 grid place-items-center"
-            animate={stage === 'entering' ? { scale: 1.7, opacity: 0, filter: 'blur(2px)' } : { scale: 1, opacity: 1, filter: 'blur(0px)' }}
+            animate={stage === 'entering' ? { scale: 1.6, opacity: 0 } : { scale: 1, opacity: 1 }}
             transition={{ duration: 2.4, ease: [0.45, 0, 0.25, 1] }}
-            style={{ perspective: 1000 }}
+            style={{ perspective: 1000, willChange: 'transform, opacity' }}
           >
             {/* The arched card behind the leaves */}
             <motion.div className="relative w-[min(82vw,420px,50svh)]" style={{ rotateX: rotX, rotateY: rotY, transformStyle: 'preserve-3d' }}>
@@ -141,18 +144,29 @@ export default function Opener({ onOpen }) {
                   left: side === 1 ? 'calc(50% - min(12vw, 66px, 8svh))' : undefined,
                   marginTop: 'max(-34vw, -192px, -27svh)',
                   transformOrigin: side === -1 ? '0% 60%' : '100% 60%',
-                  filter: 'drop-shadow(0 18px 30px rgba(0,0,0,.45))',
                   zIndex: side === -1 ? 2 : 1,
+                  willChange: 'transform, opacity',
                 }}
-                initial={{ rotate: side * 10, x: 0 }}
+                initial={{ rotate: side * 10, x: '0vw' }}
                 animate={
                   parted
-                    ? { x: `${side * 110}vw`, rotate: side * 40, rotateY: side * -60, opacity: [1, 1, 0] }
+                    ? {
+                        // 1) leaves gently swing open like a veil being lowered, 2) then float away
+                        x: ['0vw', `${side * 7}vw`, `${side * 18}vw`, `${side * 80}vw`],
+                        y: ['0vh', '-1vh', '-3vh', '-12vh'],
+                        rotate: [side * 10, side * 18, side * 26, side * 44],
+                        rotateY: [0, side * -38, side * -48, side * -60],
+                        opacity: [1, 1, 1, 0],
+                      }
                     : { rotate: [side * 10, side * 6, side * 10] }
                 }
-                transition={parted ? { duration: 3.2, ease: [0.45, 0, 0.3, 1] } : { duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                transition={
+                  parted
+                    ? { duration: 3.8, times: [0, 0.35, 0.6, 1], ease: ['easeOut', 'linear', 'easeIn'] }
+                    : { duration: 4, repeat: Infinity, ease: 'easeInOut' }
+                }
               >
-                <motion.div style={{ rotateY: rotY, rotateX: rotX }}>
+                <motion.div style={parted ? undefined : { rotateY: rotY, rotateX: rotX }}>
                   <PaanLeaf id={`paan${side}`} flip={side === 1} className="h-auto w-full" />
                 </motion.div>
               </motion.div>
@@ -182,17 +196,24 @@ export default function Opener({ onOpen }) {
           {/* marigold petal shower */}
           {parted &&
             petals.map((p, i) => (
-              <motion.span
+              <span
                 key={i}
-                className="pointer-events-none absolute top-[-5vh] block rounded-[50%_50%_50%_0]"
-                style={{ left: `${p.x}%`, width: p.s, height: p.s, background: p.c }}
-                initial={{ y: 0, rotate: 0, opacity: 1 }}
-                animate={{ y: '115vh', x: p.drift, rotate: p.rot, opacity: [1, 1, 0.8] }}
-                transition={{ duration: p.d * 1.8, delay: p.delay * 1.5, ease: 'easeIn' }}
+                className="petal pointer-events-none absolute top-[-5vh] block rounded-[50%_50%_50%_0]"
+                style={{
+                  left: `${p.x}%`,
+                  width: p.s,
+                  height: p.s,
+                  background: p.c,
+                  animationDuration: `${p.d}s`,
+                  animationDelay: `${p.delay}s`,
+                  '--drift': `${p.drift}px`,
+                  '--spin': `${p.rot}deg`,
+                }}
               />
             ))}
         </motion.div>
       )}
     </AnimatePresence>
+    </MotionConfig>
   )
 }
