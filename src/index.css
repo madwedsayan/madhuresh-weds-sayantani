@@ -273,6 +273,13 @@ body.locked {
 }
 .sway { animation: sway 5s ease-in-out infinite; }
 
+/* temple pennant fluttering from its staff */
+@keyframes flag-wave {
+  0%, 100% { transform: skewY(0deg) scaleX(1); }
+  50% { transform: skewY(-10deg) scaleX(.86); }
+}
+.flag-wave { transform-box: fill-box; transform-origin: 0% 50%; animation: flag-wave 1.8s ease-in-out infinite; }
+
 @keyframes twinkle {
   0%, 100% { opacity: 0.25; }
   50% { opacity: 1; }
@@ -298,5 +305,5 @@ body.locked {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flicker, .sway, .ring, .gold-text, .river-flow, .river-shimmer, .river-glint, .boat-drift, .ripple-line, .ripple-ring, .bob, .jet-flow, .splash, .lantern-pulse, .flood-sweep { animation: none !important; }
+  .flicker, .sway, .ring, .gold-text, .river-flow, .river-shimmer, .river-glint, .boat-drift, .ripple-line, .ripple-ring, .bob, .jet-flow, .splash, .lantern-pulse, .flood-sweep, .flag-wave { animation: none !important; }
 }
