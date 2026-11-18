@@ -1,5 +1,3 @@
-import { archPath } from './Arch'
-
 /** Curvilinear, ribbed Bengal-temple spire (ratna) with a kalash finial. */
 function Ratna({ x, b, w, h, ink, rib }) {
   const t = b - h
@@ -122,7 +120,121 @@ function VictoriaMemorial({ ink, ink2 }) {
   )
 }
 
-/** Panorama: Dakshineswar & Victoria Memorial ↔ Hooghly with Howrah Bridge ↔ Lucknow's Imambara & Rumi Darwaza. */
+/** Chota Imambara: crenellated white facade, golden ribbed onion dome on a drum, turrets, Muharram fairy lights. */
+function ChotaImambara({ ink, ink2 }) {
+  const lit = '#ffcf7a'
+  const bulb = (x, y, w) => <path d={`M${x - w / 2} ${y} C ${x - w * 0.7} ${y - w * 0.5}, ${x - w * 0.1} ${y - w * 0.9}, ${x} ${y - w * 1.2} C ${x + w * 0.1} ${y - w * 0.9}, ${x + w * 0.7} ${y - w * 0.5}, ${x + w / 2} ${y} Z`} />
+  return (
+    <g>
+      <g fill={ink}>
+        {/* ground-floor facade + parapet */}
+        <rect x="1200" y="220" width="140" height="48" />
+        {Array.from({ length: 17 }).map((_, i) => (
+          <rect key={i} x={1202 + i * 8.2} y="215" width="4" height="6" />
+        ))}
+        {/* upper storey */}
+        <rect x="1234" y="198" width="72" height="23" />
+        {Array.from({ length: 9 }).map((_, i) => (
+          <rect key={i} x={1236 + i * 8.2} y="193" width="4" height="6" />
+        ))}
+        {/* drum + onion dome + long finial */}
+        <rect x="1253" y="180" width="34" height="19" />
+        <path d="M1250 181 C 1238 166, 1254 146, 1270 136 C 1286 146, 1302 166, 1290 181 Z" />
+        <circle cx="1270" cy="133" r="3" />
+        <path d="M1270 131 V104" stroke={ink} strokeWidth="2" />
+        <circle cx="1270" cy="116" r="2" />
+        {/* corner turrets and parapet chhatris */}
+        {[1203, 1337].map((x) => (
+          <g key={x}>
+            <rect x={x - 4} y="186" width="8" height="82" />
+            {bulb(x, 186, 10)}
+          </g>
+        ))}
+        {[1238, 1302].map((x) => (
+          <g key={x}>
+            <rect x={x - 3} y="176" width="6" height="22" />
+            {bulb(x, 176, 8)}
+          </g>
+        ))}
+        {[1224, 1316].map((x) => bulb(x, 215, 8))}
+      </g>
+      {/* gilded ribs on the dome */}
+      <path d="M1262 179 C 1256 164, 1262 148, 1270 137 M1278 179 C 1284 164, 1278 148, 1270 137 M1270 179 V137" stroke="#c9a24a" strokeOpacity=".35" strokeWidth="1" fill="none" />
+      {/* lit arcade */}
+      {[1222, 1246, 1270, 1294, 1318].map((x, i) => (
+        <path key={x} d={`M${x - 6} 264 v-18 q6 -10 12 0 v18 z`} fill={i === 2 ? 'url(#rumiGlow)' : lit} opacity={i === 2 ? 1 : 0.6} className="flicker" style={{ animationDelay: `${i * 0.35}s` }} />
+      ))}
+      {[1248, 1262, 1278, 1292].map((x) => (
+        <path key={x} d={`M${x - 3} 216 v-9 q3 -5 6 0 v9 z`} fill={lit} opacity=".55" />
+      ))}
+      <rect x="1257" y="186" width="26" height="1.5" fill={ink2} />
+      {/* Muharram fairy lights along the parapet */}
+      {Array.from({ length: 18 }).map((_, i) => (
+        <circle key={i} cx={1203 + i * 8} cy="223" r="1.3" fill="#ffe7a8" className="flicker" style={{ animationDelay: `${(i % 6) * 0.3}s` }} />
+      ))}
+    </g>
+  )
+}
+
+/** Bara Imambara: arcaded central block with corner chhatris and three great arches, wings lined with small domes. */
+function BaraImambara({ ink, ink2 }) {
+  const lit = '#ffcf7a'
+  const dome = (x, y, w) => (
+    <g key={`${x}-${y}`}>
+      <path d={`M${x - w / 2} ${y} C ${x - w / 2} ${y - w * 0.85}, ${x + w / 2} ${y - w * 0.85}, ${x + w / 2} ${y} Z`} />
+      <path d={`M${x} ${y - w * 0.62} v-4`} stroke={ink2} strokeWidth="1.2" />
+    </g>
+  )
+  return (
+    <g>
+      <g fill={ink2}>
+        {/* wings with their row of small domes */}
+        <rect x="1352" y="228" width="248" height="40" />
+        <rect x="1352" y="225" width="248" height="4" />
+        {Array.from({ length: 15 }).map((_, i) => {
+          const x = 1360 + i * 17
+          return x > 1414 && x < 1542 ? null : dome(x, 226, 13)
+        })}
+        {/* central block: arcaded upper floor + parapet with merlons */}
+        <rect x="1418" y="196" width="120" height="72" />
+        <rect x="1414" y="193" width="128" height="4" />
+        {Array.from({ length: 15 }).map((_, i) => (
+          <rect key={i} x={1418 + i * 8.2} y="187" width="4" height="7" />
+        ))}
+        {/* corner towers with chhatris */}
+        {[1418, 1538].map((x) => (
+          <g key={x}>
+            <rect x={x - 7} y="168" width="14" height="100" />
+            <rect x={x - 9} y="166" width="18" height="3" />
+            <rect x={x - 6} y="152" width="12" height="14" />
+            {dome(x, 153, 14)}
+          </g>
+        ))}
+      </g>
+      {/* little pennants on the parapet */}
+      {[1440, 1462, 1494, 1516].map((x) => (
+        <g key={x}>
+          <path d={`M${x} 188 v-12`} stroke={ink2} strokeWidth="1" />
+          <path d={`M${x} 176 l8 2 l-8 3 z`} fill="#2e3a8c" className="flag-wave" />
+        </g>
+      ))}
+      {/* upper arcade, lit */}
+      {Array.from({ length: 9 }).map((_, i) => (
+        <path key={i} d={`M${1428 + i * 12.5} 214 v-10 q3.5 -6 7 0 v10 z`} fill={lit} opacity=".5" className="flicker" style={{ animationDelay: `${i * 0.25}s` }} />
+      ))}
+      {/* three great arches */}
+      {[1446, 1478, 1510].map((x, i) => (
+        <path key={x} d={`M${x - 11} 268 V244 Q${x} 224 ${x + 11} 244 V268 Z`} fill="url(#rumiGlow)" className="flicker" style={{ animationDelay: `${i * 0.5}s` }} />
+      ))}
+      {/* wing windows */}
+      {[1362, 1380, 1398, 1558, 1576, 1594].map((x) => (
+        <path key={x} d={`M${x - 3} 260 v-12 q3 -5 6 0 v12 z`} fill={lit} opacity=".45" />
+      ))}
+    </g>
+  )
+}
+
+/** Panorama: Dakshineswar & Victoria Memorial ↔ Hooghly with Howrah Bridge ↔ Lucknow's Chota & Bara Imambara. */
 export function TwilightSkyline({ className = '' }) {
   const ink = '#0b0a26'
   const ink2 = '#16143e'
@@ -148,8 +260,15 @@ export function TwilightSkyline({ className = '' }) {
       <VictoriaMemorial ink={ink} ink2={ink2} />
     </g>
   )
+  // Lucknow on the far bank: Chota Imambara beside the bridge, Bara Imambara beyond
+  const lucknow = (
+    <g>
+      <BaraImambara ink={ink} ink2={ink2} />
+      <ChotaImambara ink={ink} ink2={ink2} />
+    </g>
+  )
   return (
-    <svg viewBox="0 0 1600 360" preserveAspectRatio="xMidYMax slice" className={className} aria-label="Kolkata and Lucknow skyline: Dakshineswar temple, Victoria Memorial, Howrah Bridge and Rumi Darwaza">
+    <svg viewBox="0 0 1600 360" preserveAspectRatio="xMidYMax slice" className={className} aria-label="Kolkata and Lucknow skyline: Dakshineswar temple, Victoria Memorial, Howrah Bridge, Chota and Bara Imambara">
       <defs>
         <linearGradient id="river" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#2a2a6a" />
@@ -188,15 +307,21 @@ export function TwilightSkyline({ className = '' }) {
         <g transform="translate(0 532) scale(1 -1)" opacity=".3">
           <g className="river-shimmer" style={{ animationDelay: '-2s' }}>{kolkata}</g>
         </g>
+        <g transform="translate(0 532) scale(1 -1)" opacity=".3">
+          <g className="river-shimmer" style={{ animationDelay: '-3.5s' }}>{lucknow}</g>
+        </g>
         {Array.from({ length: 28 }).map((_, i) => (
           <rect key={i} x={628 + i * 20} y="272" width="4" height={14 + (i % 4) * 7} rx="2" fill="#ffd27a" className="river-glint" style={{ animationDelay: `${(i % 7) * 0.35}s` }} />
         ))}
         {/* temple sanctum, Victoria portico and Rumi Darwaza glows */}
         <rect x="140" y="274" width="20" height="44" fill="#ffb347" opacity=".22" className="river-glint" />
         <rect x="403" y="274" width="24" height="40" fill="#ffd98a" opacity=".2" className="river-glint" style={{ animationDelay: '.8s' }} />
-        <rect x="1452" y="274" width="61" height="40" fill="#ffb347" opacity=".14" className="river-glint" />
-        {[1216, 1254, 1292, 1330, 1368].map((x, i) => (
-          <rect key={x} x={x + 2} y="274" width="4" height="18" rx="2" fill="#ffcf7a" className="river-glint" style={{ animationDelay: `${i * 0.4}s` }} />
+        {/* Imambara arches */}
+        {[1446, 1478, 1510].map((x, i) => (
+          <rect key={x} x={x - 9} y="274" width="18" height="38" fill="#ffb347" opacity=".2" className="river-glint" style={{ animationDelay: `${i * 0.5}s` }} />
+        ))}
+        {[1222, 1246, 1270, 1294, 1318].map((x, i) => (
+          <rect key={x} x={x - 2} y="274" width="4" height="20" rx="2" fill="#ffcf7a" className="river-glint" style={{ animationDelay: `${i * 0.4}s` }} />
         ))}
       </g>
 
@@ -234,32 +359,7 @@ export function TwilightSkyline({ className = '' }) {
         <circle key={i} cx={630 + i * 20} cy="258" r="2" fill="#ffd27a" className="flicker" style={{ animationDelay: `${(i % 5) * 0.3}s` }} />
       ))}
 
-      {/* Lucknow on the far bank: Bara Imambara domes + Rumi Darwaza */}
-      <g transform="translate(1150 13.4) scale(.95)">
-        <g fill={ink2}>
-          <path d="M40 260 v-60 h260 v60 z" />
-          <path d="M110 200 c0 -50 80 -50 80 0 z" />
-          <path d="M150 150 v-14" stroke={ink2} strokeWidth="3" />
-          {[60, 280].map((x) => (
-            <g key={x}>
-              <rect x={x - 10} y="150" width="20" height="60" />
-              <path d={`M${x - 14} 150 c0 -24 28 -24 28 0 z`} />
-            </g>
-          ))}
-        </g>
-        <g fill={ink}>
-          <path d="M250 270 V150 h200 V270 Z" />
-          <rect x="236" y="120" width="26" height="150" />
-          <rect x="438" y="120" width="26" height="150" />
-          <path d="M232 120 c0 -26 34 -26 34 0 z M434 120 c0 -26 34 -26 34 0 z" />
-          <path d="M320 150 c0 -40 60 -40 60 0 z" />
-          <path d="M350 108 v-14" stroke={ink} strokeWidth="3" />
-        </g>
-        <path d={archPath(110, 110, { lobes: 9 })} transform="translate(295 162)" fill="url(#rumiGlow)" className="flicker" />
-        {[70, 110, 150, 190, 230].map((x) => (
-          <rect key={x} x={x} y="225" width="8" height="14" rx="4" fill="#ffcf7a" opacity=".7" />
-        ))}
-      </g>
+      {lucknow}
       {/* coconut palm on the ghat */}
       <g fill={ink}>
         <path d="M560 268 C 562 240, 566 222, 574 198 L 579 199 C 572 224, 568 242, 567 268 Z" />
