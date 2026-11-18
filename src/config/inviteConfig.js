@@ -21,7 +21,7 @@ export const WHATSAPP_RSVP_LINK = `https://wa.me/${WHATSAPP_NUMBER}?text=${encod
 
 // Google Sheet RSVP — deploy /google-apps-script/Code.gs as a Web App and paste its URL here.
 // Leave empty ('') to send RSVPs via WhatsApp only.
-export const GOOGLE_SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbwJS1XjGgMtCmFs7A2GWpQ09wyY3smsKm0hN27u8Co5wcLf-o9YukxWEHeNpix6cKhX/exec'
+export const GOOGLE_SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzcsDhvTFMj_O0AE9A1Bk_HZ6GvKlhW1g4svvuuzdBnj_A_vb5S44qsMvAqfbX8yq0h/exec'
 
 // Countdown target = the muhurat / lagna time.
 export const TARGET_WEDDING_ISO_DATE = '2027-02-14T19:30:00+05:30' // [TARGET_WEDDING_ISO_DATE]
