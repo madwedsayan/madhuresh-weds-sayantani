@@ -67,9 +67,47 @@ function YellowTaxi({ wheelRot }) {
       <ellipse cx="150" cy="172" rx="130" ry="7" fill="#00000022" />
       {/* body */}
       <path d="M20 140 C 16 112, 30 100, 60 96 L 92 92 C 104 66, 120 52, 160 50 C 196 50, 214 64, 228 90 L 262 96 C 284 100, 290 116, 288 140 Z" fill="#ffd21f" stroke="#2a2a2a" strokeWidth="2" />
-      {/* windows */}
-      <path d="M106 90 C 116 70, 130 62, 156 62 L 156 90 Z" fill="#9fd3e6" stroke="#2a2a2a" strokeWidth="1.5" />
-      <path d="M164 62 C 190 62, 204 70, 214 90 L 164 90 Z" fill="#9fd3e6" stroke="#2a2a2a" strokeWidth="1.5" />
+      {/* windows — the bride rides in the back seat, looking out toward the baraat */}
+      <defs>
+        <clipPath id="taxi-front-win">
+          <path d="M106 90 C 116 70, 130 62, 156 62 L 156 90 Z" />
+        </clipPath>
+        <clipPath id="taxi-rear-win">
+          <path d="M164 62 C 190 62, 204 70, 214 90 L 164 90 Z" />
+        </clipPath>
+      </defs>
+      <path d="M106 90 C 116 70, 130 62, 156 62 L 156 90 Z" fill="#9fd3e6" />
+      <path d="M164 62 C 190 62, 204 70, 214 90 L 164 90 Z" fill="#9fd3e6" />
+      {/* driver silhouette */}
+      <g clipPath="url(#taxi-front-win)">
+        <circle cx="140" cy="80" r="8" fill="#3b2a22" />
+        <path d="M126 92 C 128 84, 152 84, 154 92 Z" fill="#e8e1d0" />
+      </g>
+      {/* Bengali bride: red veil, white shola mukut, chandan dots, teep, nath */}
+      <g clipPath="url(#taxi-rear-win)">
+        <path d="M168 92 C 168 82, 196 80, 200 92 Z" fill="#b3121f" />
+        <path d="M168 92 C 170 86, 176 84, 180 86" stroke="#ffd166" strokeWidth="1.4" fill="none" />
+        <ellipse cx="185" cy="76" rx="8.6" ry="10" fill="#d9a77f" />
+        {/* hair + red veil (anchal) over the head */}
+        <path d="M176 76 C 175 64, 195 63, 194 75 C 191 69, 180 69, 176 76 Z" fill="#2b1a12" />
+        <path d="M173 90 C 170 74, 176 62, 186 61 C 196 61, 199 70, 198 78 C 196 70, 190 66, 185 66 C 178 66, 175 72, 176 90 Z" fill="#b3121f" />
+        <path d="M174 86 C 173 74, 178 64, 186 63" stroke="#ffd166" strokeWidth="1" strokeDasharray="1.5 1.5" fill="none" />
+        {/* shola mukut */}
+        <path d="M178 66 C 179 58, 191 58, 192 66 Z" fill="#fffaf0" stroke="#c9a24b" strokeWidth=".7" />
+        <circle cx="185" cy="61" r="1.6" fill="#fffaf0" stroke="#c9a24b" strokeWidth=".5" />
+        {/* chandan dots arc + teep */}
+        {[-5, -2.5, 0, 2.5, 5].map((dx, i) => (
+          <circle key={i} cx={185 + dx} cy={70.5 - Math.cos((dx / 5) * 1.2) * 1.4} r=".7" fill="#fffaf0" />
+        ))}
+        <circle cx="185" cy="72.5" r="1.1" fill="#b3121f" />
+        {/* eyes looking toward the front (left), smile, nath */}
+        <path d="M180 76.5 q1.5 -1 3 0 M186 76.5 q1.5 -1 3 0" stroke="#2b1a12" strokeWidth=".8" fill="none" />
+        <path d="M182.5 81.5 q2.5 1.6 5 0" stroke="#9b3b3b" strokeWidth=".8" fill="none" />
+        <circle cx="181.4" cy="79.2" r="1.6" fill="none" stroke="#ffd166" strokeWidth=".6" />
+      </g>
+      <path d="M106 90 C 116 70, 130 62, 156 62 L 156 90 Z" fill="#ffffff" opacity=".12" stroke="#2a2a2a" strokeWidth="1.5" />
+      <path d="M164 62 C 190 62, 204 70, 214 90 L 164 90 Z" fill="#ffffff" opacity=".12" stroke="#2a2a2a" strokeWidth="1.5" />
+      <path d="M170 66 l10 -2 l-14 22 z" fill="#fff" opacity=".18" />
       {/* roof sign */}
       <rect x="140" y="40" width="34" height="11" rx="2" fill="#fff" stroke="#2a2a2a" />
       <text x="157" y="49" textAnchor="middle" fontSize="8" fontFamily="sans-serif" fontWeight="700" fill="#2a2a2a">TAXI</text>

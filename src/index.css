@@ -14,6 +14,10 @@
   --stone-shade: #d9a85a;
   --stone-deep: #b07a36;
   --pool: #6fa6e6;
+  --rd-light: #f6e7cf;
+  --rd-base: #e8cca6;
+  --rd-mid: #c9a27e;
+  --rd-deep: #8c6a52;
 
   --family-bg: #8fd6c3;
   --family-fg: #13403a;
@@ -52,6 +56,10 @@
   --stone-shade: #c98d5e;
   --stone-deep: #8f5534;
   --pool: #5a2a4a;
+  --rd-light: #f6dcc6;
+  --rd-base: #e3bb9c;
+  --rd-mid: #c18f6f;
+  --rd-deep: #7d4f3c;
 
   --family-bg: #faf3e4;
   --family-fg: #5a0d17;
@@ -90,6 +98,10 @@
   --stone-shade: #362b62;
   --stone-deep: #221a45;
   --pool: #1b1850;
+  --rd-light: #f0d39a;
+  --rd-base: #c9a06a;
+  --rd-mid: #9a744c;
+  --rd-deep: #4f3a2c;
 
   --family-bg: #15133a;
   --family-fg: #f2dc9b;
@@ -210,6 +222,44 @@ body.locked {
 }
 .boat-drift { animation: boat-drift 70s linear infinite; }
 
+/* ── Rumi Darwaza ── */
+@keyframes jet-flow { to { stroke-dashoffset: -32; } }
+.jet-flow { animation: jet-flow .9s linear infinite; }
+@keyframes splash {
+  0%, 100% { transform: translateY(0) scale(.6); opacity: 0; }
+  40% { transform: translateY(-5px) scale(1); opacity: .9; }
+}
+.splash { transform-box: fill-box; transform-origin: center; animation: splash 1.1s ease-out infinite; }
+@keyframes lantern-pulse {
+  0%, 100% { opacity: .75; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.12); }
+}
+.lantern-pulse { transform-box: fill-box; transform-origin: center; animation: lantern-pulse 3.6s ease-in-out infinite; }
+@keyframes flood-sweep {
+  0% { transform: translateY(560px); opacity: 0; }
+  15% { opacity: 1; }
+  70% { transform: translateY(-60px); opacity: 1; }
+  100% { transform: translateY(-260px); opacity: 0; }
+}
+.flood-sweep { animation: flood-sweep 9s ease-in-out infinite; }
+
+/* ── Reflecting pool (hero) ── */
+@keyframes ripple-line {
+  0%, 100% { transform: translateX(0) scaleX(1); opacity: 1; }
+  50% { transform: translateX(14px) scaleX(0.75); opacity: 0.35; }
+}
+.ripple-line { transform-box: fill-box; transform-origin: center; animation: ripple-line 6s ease-in-out infinite; }
+@keyframes ripple-ring {
+  0% { transform: scale(0.35); opacity: 0.7; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+.ripple-ring { transform-box: fill-box; transform-origin: center; animation: ripple-ring 2.6s ease-out infinite; }
+@keyframes bob {
+  0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+  50% { transform: translateY(-3px) rotate(1.5deg); }
+}
+.bob { transform-box: fill-box; transform-origin: 50% 100%; animation: bob 4.5s ease-in-out infinite; }
+
 @keyframes petal-fall {
   0% { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 1; }
   85% { opacity: 1; }
@@ -248,5 +298,5 @@ body.locked {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flicker, .sway, .ring, .gold-text, .river-flow, .river-shimmer, .river-glint, .boat-drift { animation: none !important; }
+  .flicker, .sway, .ring, .gold-text, .river-flow, .river-shimmer, .river-glint, .boat-drift, .ripple-line, .ripple-ring, .bob, .jet-flow, .splash, .lantern-pulse, .flood-sweep { animation: none !important; }
 }

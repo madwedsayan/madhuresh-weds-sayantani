@@ -5,7 +5,7 @@ import FloatingControls from './components/FloatingControls'
 import Hero from './components/sections/Hero'
 import Family from './components/sections/Family'
 import Couple from './components/sections/Couple'
-import BengaliSymbols from './components/sections/BengaliSymbols'
+import CulturalIcons from './components/sections/CulturalIcons'
 import Events from './components/sections/Events'
 import Procession from './components/sections/Procession'
 import ThingsToKnow from './components/sections/ThingsToKnow'
@@ -60,7 +60,7 @@ export default function App() {
         <Hero />
         <Family />
         <Couple />
-        <BengaliSymbols />
+        <CulturalIcons />
         <Events />
         <Procession />
         <ThingsToKnow />

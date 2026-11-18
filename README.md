@@ -63,9 +63,9 @@ src/
     Opener.jsx                ← Shubho Drishti paan-leaf reveal (tap to open)
     FloatingControls.jsx      ← music + theme buttons
     Lanterns.jsx              ← CSS sky lanterns & stars
-    sections/                 ← Hero, Family, Couple, BengaliSymbols, Events, Procession, ThingsToKnow, Rsvp, Finale
+    sections/                 ← Hero, Family, Couple, CulturalIcons, Events, Procession, ThingsToKnow, Rsvp, Finale
     motifs/                   ← SVG art: cusped arch, Alpona, Chikankari, Ganesha, paan, toran, scenery, event art,
-                                Bengali wedding icons (BengaliIcons.jsx — names/meanings editable there)
+                                Lucknow + Bengali wedding icons (LucknowIcons.jsx, BengaliIcons.jsx), Rumi Darwaza, reflecting water
   lib/                        ← calendar (.ics/Google), Web Audio sounds, themes
 ```
 

@@ -1,7 +1,7 @@
 import { useRef } from 'react'
 import { motion, useScroll, useTransform } from 'framer-motion'
 import LanternField, { Stars } from '../Lanterns'
-import { PalaceCourtyard } from '../motifs/Scenery'
+import RumiDarwazaScene from '../motifs/RumiDarwaza'
 import { AlponaLotus, Footprint, Kite, Toran } from '../motifs/Motifs'
 import { archPath } from '../motifs/Arch'
 import config from '../../config/inviteConfig'
@@ -52,7 +52,6 @@ export default function Hero() {
   const crestOpacity = useTransform(p, [0, 0.28, 0.42], [1, 1, 0])
   const crestScale = useTransform(p, [0, 0.4], [1, 0.9])
   const palaceY = useTransform(p, [0, 0.7], ['88%', '0%'])
-  const palaceScale = useTransform(p, [0, 0.7, 1], [1.2, 1, 1.05])
   const glowOpacity = useTransform(p, [0.35, 0.7], [0, 1])
   const capOpacity = useTransform(p, [0.62, 0.78], [0, 1])
   const capY = useTransform(p, [0.62, 0.78], [30, 0])
@@ -96,9 +95,9 @@ export default function Hero() {
         </motion.div>
 
         {/* Palace courtyard rising into view */}
-        <motion.div className="absolute inset-x-0 bottom-0 h-[78svh] origin-bottom md:h-[82svh]" style={{ y: palaceY, scale: palaceScale }}>
+        <motion.div className="absolute inset-x-0 bottom-0 h-[78svh] origin-bottom md:h-[82svh]" style={{ y: palaceY }}>
           <motion.div className="absolute inset-x-0 bottom-[30%] mx-auto h-[60%] w-[80%] rounded-full" style={{ opacity: glowOpacity, background: 'radial-gradient(closest-side, var(--sky-glow), transparent)', filter: 'blur(30px)' }} />
-          <PalaceCourtyard className="absolute inset-0 h-full w-full" />
+          <RumiDarwazaScene className="absolute inset-0 h-full w-full" />
         </motion.div>
 
         {/* near lanterns pass in front of the palace */}
