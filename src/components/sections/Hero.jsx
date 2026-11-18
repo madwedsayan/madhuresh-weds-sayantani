@@ -1,10 +1,12 @@
 import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useTransform } from 'framer-motion'
+import useSmoothProgress from '../../lib/useSmoothProgress'
 import LanternField, { Stars } from '../Lanterns'
 import RumiDarwazaScene from '../motifs/RumiDarwaza'
 import { AlponaLotus, Footprint, Kite, Toran } from '../motifs/Motifs'
 import { archPath } from '../motifs/Arch'
 import config from '../../config/inviteConfig'
+import { LITE } from '../../lib/perf'
 
 /** Ornate crest: cusped arch + Alpona lotus + names. */
 function Crest() {
@@ -37,7 +39,7 @@ function Crest() {
 
 export default function Hero() {
   const ref = useRef(null)
-  const { scrollYProgress: p } = useScroll({ target: ref, offset: ['start start', 'end end'] })
+  const p = useSmoothProgress(ref, ['start start', 'end end'])
 
   // camera pans down: sky drifts up, palace rises in from below
   const skyY = useTransform(p, [0, 1], ['0%', '-30%'])
@@ -69,15 +71,15 @@ export default function Hero() {
           }}
         />
         <motion.div className="absolute inset-0" style={{ y: starsY }}>
-          <Stars count={80} />
+          <Stars count={LITE ? 36 : 80} />
         </motion.div>
 
         {/* lantern layers: far → near */}
         <motion.div className="absolute inset-x-0 top-0 h-[220vh]" style={{ y: farY }}>
-          <LanternField count={22} seed={11} minSize={7} maxSize={13} height={100} blur={1} opacity={0.75} />
+          <LanternField count={LITE ? 10 : 22} seed={11} minSize={7} maxSize={13} height={100} opacity={0.8} />
         </motion.div>
         <motion.div className="absolute inset-x-0 top-0 h-[260vh]" style={{ y: midY }}>
-          <LanternField count={18} seed={23} minSize={16} maxSize={26} height={100} />
+          <LanternField count={LITE ? 9 : 18} seed={23} minSize={16} maxSize={26} height={100} />
         </motion.div>
 
         {/* Lucknow kites */}
@@ -96,13 +98,13 @@ export default function Hero() {
 
         {/* Palace courtyard rising into view */}
         <motion.div className="absolute inset-x-0 bottom-0 h-[78svh] origin-bottom md:h-[82svh]" style={{ y: palaceY }}>
-          <motion.div className="absolute inset-x-0 bottom-[30%] mx-auto h-[60%] w-[80%] rounded-full" style={{ opacity: glowOpacity, background: 'radial-gradient(closest-side, var(--sky-glow), transparent)', filter: 'blur(30px)' }} />
+          <motion.div className="absolute inset-x-0 bottom-[30%] mx-auto h-[60%] w-[80%] rounded-full" style={{ opacity: glowOpacity, background: 'radial-gradient(closest-side, var(--sky-glow), transparent)' }} />
           <RumiDarwazaScene className="absolute inset-0 h-full w-full" />
         </motion.div>
 
         {/* near lanterns pass in front of the palace */}
         <motion.div className="pointer-events-none absolute inset-x-0 top-0 z-20 h-[340vh]" style={{ y: nearY, scale: nearScale }}>
-          <LanternField count={12} seed={37} minSize={30} maxSize={52} height={100} />
+          <LanternField count={LITE ? 6 : 12} seed={37} minSize={30} maxSize={52} height={100} />
         </motion.div>
 
         {/* caption over the courtyard */}

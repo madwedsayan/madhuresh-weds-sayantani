@@ -1,5 +1,6 @@
 import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useTransform } from 'framer-motion'
+import useSmoothProgress from '../../lib/useSmoothProgress'
 import { AlponaDivider, Butterfly, ChikanSpray, Ganesha } from '../motifs/Motifs'
 import { IconCalendar, IconPin } from '../motifs/Icons'
 import config from '../../config/inviteConfig'
@@ -36,7 +37,7 @@ export default function Family() {
   const { groom, bride } = config.couple
   const { invocation, wedding } = config
   const ref = useRef(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'start start'] })
+  const scrollYProgress = useSmoothProgress(ref, ['start end', 'start start'])
   const curtainL = useTransform(scrollYProgress, [0, 1], ['-40%', '0%'])
   const curtainR = useTransform(scrollYProgress, [0, 1], ['40%', '0%'])
 

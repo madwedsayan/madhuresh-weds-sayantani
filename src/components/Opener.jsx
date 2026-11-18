@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, MotionConfig, motion, useMotionValue, useSpring, useTransform } from 'framer-motion'
 import LanternField, { Stars } from './Lanterns'
+import { LITE } from '../lib/perf'
 import { PaanLeaf, AlponaLotus, Butterfly } from './motifs/Motifs'
 import { archPath } from './motifs/Arch'
 import { playMusic, preloadMusic } from '../lib/music'
@@ -12,7 +13,7 @@ import config from '../config/inviteConfig'
  * the invitation is veiled by two betel leaves. A tap parts them (CSS 3D),
  * fades in the music, showers marigold petals and glides the guest through the arch.
  */
-export default function Opener({ onOpen, onExitComplete }) {
+export default function Opener({ onOpen, onReveal, onExitComplete }) {
   const [stage, setStage] = useState('closed') // closed → parting → entering → gone
   const { groom, bride } = config.couple
 
@@ -48,7 +49,10 @@ export default function Opener({ onOpen, onExitComplete }) {
     // The tap starts the wedding music (no sound effects). Must run inside the tap for mobile autoplay rules.
     if (config.audio.playMusicOnOpen) playMusic({ fadeMs: 3000 })
     // Slow, graceful reveal: leaves drift apart, then we glide through the arch.
-    setTimeout(() => setStage('entering'), 3400)
+    setTimeout(() => {
+      setStage('entering')
+      onReveal?.()
+    }, 3400)
     setTimeout(() => {
       setStage('gone')
       onOpen()
@@ -93,7 +97,7 @@ export default function Opener({ onOpen, onExitComplete }) {
           style={{ background: 'linear-gradient(180deg, var(--sky-1) 0%, var(--sky-2) 55%, var(--sky-3) 100%)' }}
         >
           <Stars count={60} />
-          <LanternField mode="rise" count={18} seed={3} minSize={10} maxSize={26} />
+          <LanternField mode="rise" count={LITE ? 10 : 18} seed={3} minSize={10} maxSize={26} />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3" style={{ background: 'radial-gradient(ellipse at 50% 120%, var(--sky-glow) 0%, transparent 65%)', opacity: 0.55 }} />
 
           <motion.div

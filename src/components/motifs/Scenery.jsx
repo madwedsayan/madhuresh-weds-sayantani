@@ -268,7 +268,7 @@ export function TwilightSkyline({ className = '' }) {
     </g>
   )
   return (
-    <svg viewBox="0 0 1600 360" preserveAspectRatio="xMidYMax slice" className={className} aria-label="Kolkata and Lucknow skyline: Dakshineswar temple, Victoria Memorial, Howrah Bridge, Chota and Bara Imambara">
+    <svg data-scene viewBox="0 0 1600 360" preserveAspectRatio="xMidYMax slice" className={className} aria-label="Kolkata and Lucknow skyline: Dakshineswar temple, Victoria Memorial, Howrah Bridge, Chota and Bara Imambara">
       <defs>
         <linearGradient id="river" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#2a2a6a" />

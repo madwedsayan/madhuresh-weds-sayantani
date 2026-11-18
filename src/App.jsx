@@ -26,6 +26,7 @@ const readTheme = () => {
 
 export default function App() {
   const [opened, setOpened] = useState(false)
+  const [revealed, setRevealed] = useState(false) // site is rendered (hidden) behind the opener; shown as the card zooms away
   const [live, setLive] = useState(false) // site animations resume only once the opener has fully faded
   const [theme, setTheme] = useState(readTheme)
 
@@ -53,10 +54,11 @@ export default function App() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <Opener onOpen={() => setOpened(true)} onExitComplete={() => setLive(true)} />
-      {/* Painted once at load behind the opener, but with every CSS animation paused until it
-          opens — so phones spend their GPU on the reveal and there's no first-paint hitch after it. */}
-      <main aria-hidden={!opened} className={live ? undefined : 'anim-paused'}>
+      <Opener onReveal={() => setRevealed(true)} onOpen={() => setOpened(true)} onExitComplete={() => setLive(true)} />
+      {/* Kept out of the compositor (visibility:hidden) while the paan leaves part, then shown behind the
+          still-opaque opener backdrop as the card zooms away — so it's painted before the backdrop fades.
+          CSS animations stay paused until the opener has fully gone. Big win on low-end phones. */}
+      <main aria-hidden={!opened} className={live ? undefined : 'anim-paused'} style={revealed ? undefined : { visibility: 'hidden' }}>
         <Hero />
         <Family />
         <Couple />

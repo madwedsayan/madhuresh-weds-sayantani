@@ -1,6 +1,7 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 import { archPath } from './Arch'
 import ReflectingPool from './Water'
+import { LITE } from '../../lib/perf'
 
 /**
  * Rumi Darwaza (Lucknow, 1784) — front elevation at dusk, floodlit.
@@ -17,7 +18,7 @@ const WATER = 562
 // ── small building blocks ───────────────────────────────────────────────────
 const Bud = ({ x, y, r = 0, s = 1 }) => (
   <g transform={`translate(${x} ${y}) rotate(${r}) scale(${s})`}>
-    <path d="M0 0 C -5 -4, -5 -12, 0 -18 C 5 -12, 5 -4, 0 0 Z" fill="var(--rd-light)" stroke="var(--rd-mid)" strokeWidth=".8" />
+    <path d="M0 0 C -5 -4, -5 -12, 0 -18 C 5 -12, 5 -4, 0 0 Z" fill="url(#rdCyl)" stroke="var(--rd-mid)" strokeWidth=".8" />
     <path d="M-5 -2 q5 -6 10 0" fill="none" stroke="var(--rd-mid)" strokeWidth=".8" />
     <circle cy="-19" r="1.6" fill="var(--rd-light)" />
   </g>
@@ -27,8 +28,9 @@ const MiniChhatri = ({ x, y, s = 1 }) => (
   <g transform={`translate(${x} ${y}) scale(${s})`}>
     <rect x="-13" y="-4" width="26" height="4" fill="var(--rd-mid)" />
     <path d="M-10 -4 v-14 M0 -4 v-14 M10 -4 v-14" stroke="var(--rd-base)" strokeWidth="3" />
+    <rect x="-13" y="-18" width="26" height="14" fill="#000" opacity=".18" />
     <rect x="-14" y="-21" width="28" height="3" fill="var(--rd-mid)" />
-    <path d="M-12 -21 C -12 -36, 12 -36, 12 -21 Z" fill="var(--rd-light)" />
+    <path d="M-12 -21 C -12 -36, 12 -36, 12 -21 Z" fill="url(#rdDome)" />
     <path d="M-12 -21 h24" stroke="var(--gold)" strokeWidth="1" />
     {/* lotus-bud finial */}
     <path d="M0 -33 C -3 -36, -3 -41, 0 -45 C 3 -41, 3 -36, 0 -33 Z" fill="var(--gold)" />
@@ -42,12 +44,12 @@ const Minaret = ({ x, top, bottom = GROUND, w = 22 }) => {
   for (let y = bottom - 70; y > top + 40; y -= 70) bands.push(y)
   return (
     <g>
-      <rect x={x - w / 2} y={top} width={w} height={bottom - top} fill="var(--rd-base)" />
-      <rect x={x - w / 2} y={top} width={w * 0.32} height={bottom - top} fill="var(--rd-light)" opacity=".55" />
-      <rect x={x + w * 0.18} y={top} width={w * 0.32} height={bottom - top} fill="var(--rd-mid)" opacity=".55" />
+      <rect x={x - w / 2} y={top} width={w} height={bottom - top} fill="url(#rdCyl)" />
+      <rect x={x - w / 2} y={top} width={w} height={bottom - top} fill="url(#rdUpwash)" />
       {bands.map((y) => (
         <g key={y}>
-          <rect x={x - w / 2 - 4} y={y} width={w + 8} height="5" fill="var(--rd-mid)" />
+          <rect x={x - w / 2 - 4} y={y} width={w + 8} height="5" fill="url(#rdCyl)" />
+          <rect x={x - w / 2} y={y + 5} width={w} height="9" fill="url(#rdAO)" />
           <path d={`M${x - w / 2 - 4} ${y + 5} h${w + 8} l-3 5 h${-w - 2} z`} fill="var(--rd-deep)" opacity=".6" />
           <path d={archPath(10, 22, { lobes: 5 })} transform={`translate(${x - 5} ${y - 30})`} fill="var(--rd-deep)" />
         </g>
@@ -69,8 +71,9 @@ const Arcade = ({ x0, x1, y, h, n, lit = true, seed = 0 }) => {
           <g key={i}>
             <path d={archPath(w + 6, h + 4, { lobes: 7 })} transform={`translate(${ax - 3} ${y - 4})`} fill="var(--rd-mid)" />
             <path d={archPath(w, h, { lobes: 7 })} transform={`translate(${ax} ${y})`} fill="var(--rd-deep)" />
+            <path d={archPath(w, h, { lobes: 7 })} transform={`translate(${ax} ${y})`} fill="url(#rdRecess)" />
             {lit && (i + seed) % 3 !== 1 && (
-              <path d={archPath(w * 0.8, h * 0.85, { lobes: 7 })} transform={`translate(${ax + w * 0.1} ${y + h * 0.15})`} fill="url(#rdWindow)" className="flicker" style={{ animationDelay: `${((i + seed) % 5) * 0.5}s` }} />
+              <path d={archPath(w * 0.8, h * 0.85, { lobes: 7 })} transform={`translate(${ax + w * 0.1} ${y + h * 0.15})`} fill="url(#rdWindow)" className={(i + seed) % 5 === 0 ? 'flicker' : undefined} style={{ animationDelay: `${((i + seed) % 7) * 0.6}s`, animationDuration: '4.5s' }} />
             )}
           </g>
         )
@@ -97,6 +100,9 @@ const Wing = ({ from, to }) => {
       <Arcade x0={from + 6} x1={to - 6} y={top + 94} h={100} n={Math.round((to - from) / 70)} seed={from + 1} />
       {/* plinth */}
       <rect x={from} y={GROUND - 14} width={to - from} height="14" fill="var(--rd-mid)" />
+      <rect x={from} y={top + 2} width={to - from} height="14" fill="url(#rdAO)" />
+      <rect x={from} y={top + 76} width={to - from} height="10" fill="url(#rdAO)" />
+      <rect x={from} y={top - 26} width={to - from} height={GROUND - top + 26} fill="url(#rdUpwash)" />
       {/* light falloff toward the far end of the wing */}
       <rect x={from} y={top - 26} width={(to - from) * 0.6} height={GROUND - top + 26} fill="url(#rdFalloff)" />
     </g>
@@ -105,22 +111,29 @@ const Wing = ({ from, to }) => {
 
 /** Pigeons circling the crest (SMIL motion — cheap and widely supported). */
 const Pigeons = () => {
+  // wide loops: out over the wings and the pool, back around the crest
   const loops = [
-    { path: 'M600 150 C 760 60, 900 160, 760 230 C 640 280, 460 220, 470 140 C 480 70, 560 120, 600 150 Z', dur: 14, s: 1 },
-    { path: 'M600 120 C 420 40, 300 150, 430 210 C 560 260, 760 210, 740 130 C 720 60, 640 100, 600 120 Z', dur: 18, s: 0.8 },
-    { path: 'M560 170 C 700 90, 860 120, 820 200 C 780 260, 560 250, 520 200 C 490 160, 520 150, 560 170 Z', dur: 11, s: 0.65 },
-    { path: 'M640 100 C 520 30, 380 90, 420 170 C 460 240, 700 230, 720 160 C 730 120, 680 110, 640 100 Z', dur: 16, s: 0.75 },
+    { path: 'M600 140 C 980 -20, 1320 120, 1180 300 C 1040 450, 640 360, 380 300 C 60 230, -120 80, 120 10 C 330 -50, 470 80, 600 140 Z', dur: 30, s: 1 },
+    { path: 'M620 110 C 300 -40, -60 60, 0 220 C 60 380, 520 330, 860 280 C 1200 230, 1340 60, 1060 0 C 860 -40, 760 60, 620 110 Z', dur: 36, s: 0.85 },
+    { path: 'M560 180 C 820 40, 1180 60, 1240 200 C 1300 340, 880 400, 600 330 C 320 260, 180 160, 300 80 C 400 20, 480 120, 560 180 Z', dur: 26, s: 0.7 },
+    { path: 'M660 90 C 420 -30, 120 20, 140 150 C 160 290, 560 300, 820 220 C 1080 140, 1160 20, 960 -10 C 820 -30, 740 50, 660 90 Z', dur: 32, s: 0.75 },
+    { path: 'M600 60 C 900 -60, 1400 -10, 1300 160 C 1220 300, 900 200, 600 210 C 300 220, -40 300, -80 140 C -110 0, 300 -40, 600 60 Z', dur: 40, s: 0.6 },
+    { path: 'M520 150 C 260 60, 60 120, 120 260 C 180 380, 700 400, 1000 330 C 1260 270, 1180 120, 920 110 C 760 104, 640 190, 520 150 Z', dur: 34, s: 0.9 },
   ]
+  const up = 'M-9 0 Q -4 -6 0 0 Q 4 -6 9 0 Q 4 -2 0 2 Q -4 -2 -9 0 Z'
+  const mid = 'M-9 -1 Q -4 -2 0 0 Q 4 -2 9 -1 Q 4 0 0 2 Q -4 0 -9 -1 Z'
+  const down = 'M-9 2 Q -4 4 0 0 Q 4 4 9 2 Q 4 2 0 2 Q -4 2 -9 2 Z'
   return (
-    <g fill="#fdf6e8" opacity=".9">
-      {loops.map((l, i) => (
+    <g fill="#fdf6e8" opacity=".88">
+      {(LITE ? loops.slice(0, 3) : loops).map((l, i) => (
         <g key={i}>
-          <g transform={`scale(${l.s})`} style={{ transformBox: 'fill-box' }}>
-            <path d="M-9 0 Q -4 -6 0 0 Q 4 -6 9 0 Q 4 -2 0 2 Q -4 -2 -9 0 Z">
-              <animate attributeName="d" dur=".5s" repeatCount="indefinite" values="M-9 0 Q -4 -6 0 0 Q 4 -6 9 0 Q 4 -2 0 2 Q -4 -2 -9 0 Z;M-9 2 Q -4 4 0 0 Q 4 4 9 2 Q 4 2 0 2 Q -4 2 -9 2 Z;M-9 0 Q -4 -6 0 0 Q 4 -6 9 0 Q 4 -2 0 2 Q -4 -2 -9 0 Z" />
+          <g transform={`scale(${l.s})`}>
+            {/* flap a few beats, then glide */}
+            <path d={up}>
+              <animate attributeName="d" dur={`${2.2 + (i % 3) * 0.4}s`} repeatCount="indefinite" keyTimes="0;.12;.24;.36;.48;.6;1" values={`${up};${down};${up};${down};${up};${mid};${mid}`} begin={`${-i * 0.7}s`} />
             </path>
           </g>
-          <animateMotion dur={`${l.dur}s`} repeatCount="indefinite" path={l.path} begin={`${-i * 3}s`} />
+          <animateMotion dur={`${l.dur}s`} repeatCount="indefinite" path={l.path} begin={`${-i * 5}s`} />
         </g>
       ))}
     </g>
@@ -141,10 +154,12 @@ const Fountains = () => {
     const d = `M${sx} ${sy} Q ${cx} ${cy} ${ex} ${ey}`
     return (
       <g key={k}>
-        <path d={d} fill="none" stroke="#e8f6ff" strokeOpacity=".22" strokeWidth="5" strokeLinecap="round" />
-        <path d={d} fill="none" stroke="#ffffff" strokeOpacity=".75" strokeWidth="1.6" strokeLinecap="round" strokeDasharray="6 10" className="jet-flow" />
+        <path d={d} fill="none" stroke="#e8f6ff" strokeOpacity=".12" strokeWidth="6" strokeLinecap="round" />
+        <path d={d} fill="none" stroke="#ffffff" strokeOpacity=".35" strokeWidth="1.1" strokeLinecap="round" />
+        <path d={d} fill="none" stroke="#ffffff" strokeOpacity=".7" strokeWidth="1.3" strokeLinecap="round" strokeDasharray="1.5 7" className="jet-flow" style={{ animationDuration: '1.4s' }} />
+        <ellipse cx={ex} cy={ey - 3} rx="14" ry="5" fill="url(#rdMist)" />
         {[0, 1, 2].map((j) => (
-          <circle key={j} cx={ex + (j - 1) * 6} cy={ey - 2} r="1.6" fill="#fff" className="splash" style={{ animationDelay: `${j * 0.25 + k * 0.1}s` }} />
+          <circle key={j} cx={ex + (j - 1) * 5} cy={ey - 2} r="1.1" fill="#fff" className="splash" style={{ animationDelay: `${j * 0.3 + k * 0.13}s`, animationDuration: '1.6s' }} />
         ))}
       </g>
     )
@@ -202,6 +217,7 @@ function Gate({ withLife = true }) {
       {/* ── crown / crest ── */}
       <path d={crest} fill="var(--rd-base)" />
       <path d={crest} fill="url(#rdCrestShade)" />
+      <path d={crest} fill="url(#rdSideLight)" />
       {petals.map(([x, y, a], i) => (
         <path key={i} transform={`translate(${x} ${y}) rotate(${a})`} d="M0 0 C -7 -4, -6 -14, 0 -18 C 6 -14, 7 -4, 0 0 Z" fill="var(--rd-light)" stroke="var(--rd-mid)" strokeWidth=".8" />
       ))}
@@ -219,7 +235,10 @@ function Gate({ withLife = true }) {
       <rect x={bodyL} y={bodyTop} width={bodyR - bodyL} height={GROUND - bodyTop} fill="var(--rd-base)" />
       {/* gajkari relief texture */}
       <rect x={bodyL} y={bodyTop} width={bodyR - bodyL} height={GROUND - bodyTop} fill="url(#rdRelief)" opacity=".5" />
+      <rect x={bodyL} y={bodyTop} width={bodyR - bodyL} height={GROUND - bodyTop} fill="url(#rdSideLight)" />
+      <rect x={bodyL} y={bodyTop} width={bodyR - bodyL} height={GROUND - bodyTop} fill="url(#rdUpwash)" />
       <rect x={bodyL - 8} y={bodyTop - 6} width={bodyR - bodyL + 16} height="10" fill="var(--rd-mid)" />
+      <rect x={bodyL} y={bodyTop + 4} width={bodyR - bodyL} height="16" fill="url(#rdAO)" />
 
       {/* concentric bead / rope mouldings around the arch */}
       <path d={archPath(archW + 56, archH + 28, { lobes: 11 })} transform={`translate(${archX - 28} ${archY - 28})`} fill="var(--rd-light)" opacity=".7" />
@@ -263,6 +282,9 @@ function Gate({ withLife = true }) {
         {[-1, 1].map((d) =>
           [0, 1].map((k) => <path key={`${d}${k}`} d={archPath(26, 46, { lobes: 5 })} transform={`translate(${CX + d * 84 - 13} ${archY + 170 + k * 80})`} fill="#000" opacity=".25" />),
         )}
+        {/* soft inner shadow where the recess meets the arch frame */}
+        <path d={archPath(archW, archH, { lobes: 11 })} transform={`translate(${archX} ${archY})`} fill="none" stroke="#000" strokeOpacity=".14" strokeWidth="34" />
+        <path d={archPath(archW, archH, { lobes: 11 })} transform={`translate(${archX} ${archY})`} fill="none" stroke="#000" strokeOpacity=".18" strokeWidth="12" />
         {/* floodlight warmth from below */}
         <rect x={archX} y={archY} width={archW} height={archH} fill="url(#rdArchLight)" />
       </g>
@@ -294,13 +316,13 @@ function Gate({ withLife = true }) {
       <g transform={`translate(${CX} ${bodyTop - 128})`}>
         <rect x="-30" y="-6" width="60" height="8" fill="var(--rd-mid)" />
         {withLife && <circle cy="-24" r="38" fill="url(#rdLanternHalo)" className="lantern-pulse" />}
-        <path d="M-22 -6 v-34 M-8 -6 v-34 M8 -6 v-34 M22 -6 v-34" stroke="var(--rd-base)" strokeWidth="5" />
+        <path d="M-22 -6 v-34 M-8 -6 v-34 M8 -6 v-34 M22 -6 v-34" stroke="url(#rdCylS)" strokeWidth="5" />
         <path d="M-15 -8 q-3 -16 0 -30 M15 -8 q3 -16 0 -30" stroke="var(--rd-mid)" strokeWidth="1" fill="none" />
         {/* lantern */}
         <path d="M0 -40 v6" stroke="var(--gold)" />
         <path d="M-5 -34 h10 l2 4 v8 l-2 4 h-10 l-2 -4 v-8 z" fill="#ffd27a" stroke="var(--gold)" strokeWidth=".8" className="flicker" />
         <rect x="-32" y="-46" width="64" height="6" fill="var(--rd-mid)" />
-        <path d="M-26 -46 C -26 -76, 26 -76, 26 -46 Z" fill="var(--rd-base)" />
+        <path d="M-26 -46 C -26 -76, 26 -76, 26 -46 Z" fill="url(#rdDome)" />
         <path d="M-26 -46 C -26 -76, 0 -78, 0 -78 C -10 -70, -14 -58, -14 -46 Z" fill="var(--rd-light)" opacity=".5" />
         {/* lotus base + kalash finial */}
         <path d="M-10 -72 q10 -8 20 0" fill="var(--rd-light)" />
@@ -346,7 +368,7 @@ export default function RumiDarwazaScene({ className = '' }) {
     </g>
   )
   return (
-    <svg ref={ref} viewBox={`${x0} -60 ${vbW} ${VB_H}`} preserveAspectRatio="xMidYMax slice" className={className} aria-label="Rumi Darwaza, Lucknow, at dusk">
+    <svg ref={ref} data-scene viewBox={`${x0} -60 ${vbW} ${VB_H}`} preserveAspectRatio="xMidYMax slice" className={className} aria-label="Rumi Darwaza, Lucknow, at dusk">
       <defs>
         <radialGradient id="rdWindow" cx="50%" cy="80%" r="80%">
           <stop offset="0" stopColor="#ffe3a3" />
@@ -375,11 +397,54 @@ export default function RumiDarwazaScene({ className = '' }) {
           <stop offset=".4" stopColor="#ffb347" stopOpacity=".35" />
           <stop offset="1" stopColor="#ffb347" stopOpacity="0" />
         </radialGradient>
-        <linearGradient id="rdFlood" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ffe2a0" stopOpacity="0" />
-          <stop offset=".5" stopColor="#ffe2a0" stopOpacity=".35" />
-          <stop offset="1" stopColor="#ffe2a0" stopOpacity="0" />
+        <linearGradient id="rdCyl" x1="0" x2="1">
+          <stop offset="0" stopColor="var(--rd-mid)" />
+          <stop offset=".28" stopColor="var(--rd-light)" />
+          <stop offset=".55" stopColor="var(--rd-base)" />
+          <stop offset=".85" stopColor="var(--rd-mid)" />
+          <stop offset="1" stopColor="var(--rd-deep)" />
         </linearGradient>
+        <linearGradient id="rdCylS" x1="0" x2="1">
+          <stop offset="0" stopColor="var(--rd-light)" />
+          <stop offset="1" stopColor="var(--rd-mid)" />
+        </linearGradient>
+        <radialGradient id="rdDome" cx="36%" cy="30%" r="80%">
+          <stop offset="0" stopColor="var(--rd-light)" />
+          <stop offset=".55" stopColor="var(--rd-base)" />
+          <stop offset="1" stopColor="var(--rd-mid)" />
+        </radialGradient>
+        <linearGradient id="rdAO" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#000" stopOpacity=".28" />
+          <stop offset="1" stopColor="#000" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="rdRecess" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#000" stopOpacity=".35" />
+          <stop offset=".35" stopColor="#000" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="rdSideLight" x1="0" x2="1">
+          <stop offset="0" stopColor="#fff" stopOpacity=".1" />
+          <stop offset=".45" stopColor="#fff" stopOpacity="0" />
+          <stop offset="1" stopColor="#000" stopOpacity=".2" />
+        </linearGradient>
+        <linearGradient id="rdUpwash" x1="0" y1="1" x2="0" y2="0">
+          <stop offset="0" stopColor="#ffcf7a" stopOpacity=".3" />
+          <stop offset=".45" stopColor="#ffcf7a" stopOpacity="0" />
+          <stop offset="1" stopColor="#000" stopOpacity=".08" />
+        </linearGradient>
+        <radialGradient id="rdMist">
+          <stop offset="0" stopColor="#fff" stopOpacity=".45" />
+          <stop offset="1" stopColor="#fff" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="rdUplight" cx="50%" cy="78%" r="62%">
+          <stop offset="0" stopColor="#ffe2a0" stopOpacity=".6" />
+          <stop offset=".55" stopColor="#ffd08a" stopOpacity=".18" />
+          <stop offset="1" stopColor="#ffd08a" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id="rdSkyHalo" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stopColor="var(--sky-glow)" stopOpacity=".75" />
+          <stop offset=".5" stopColor="var(--sky-glow)" stopOpacity=".28" />
+          <stop offset="1" stopColor="var(--sky-glow)" stopOpacity="0" />
+        </radialGradient>
         <pattern id="rdRelief" width="34" height="34" patternUnits="userSpaceOnUse">
           <g fill="none" stroke="var(--rd-mid)" strokeWidth=".8">
             <circle cx="17" cy="17" r="5" />
@@ -391,11 +456,14 @@ export default function RumiDarwazaScene({ className = '' }) {
         </clipPath>
       </defs>
 
+      {/* soft radial sky glow behind the crest */}
+      <ellipse cx={CX} cy="250" rx="560" ry="300" fill="url(#rdSkyHalo)" className="glow-breathe" />
+
       {scene(true)}
 
-      {/* floodlight sweep rising up the façade, then resting */}
+      {/* warm floodlight pooled at the base of the gate, breathing slowly (radial, no hard edges) */}
       <g clipPath="url(#rdFloodClip)" style={{ mixBlendMode: 'soft-light' }}>
-        <rect x="380" y="0" width="440" height="260" fill="url(#rdFlood)" className="flood-sweep" />
+        <ellipse cx={CX} cy={GROUND - 110} rx="330" ry="330" fill="url(#rdUplight)" className="glow-breathe" style={{ animationDuration: '7s' }} />
       </g>
 
       <Fountains />

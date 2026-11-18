@@ -242,6 +242,11 @@ body.locked {
   100% { transform: translateY(-260px); opacity: 0; }
 }
 .flood-sweep { animation: flood-sweep 9s ease-in-out infinite; }
+@keyframes glow-breathe {
+  0%, 100% { opacity: .75; }
+  50% { opacity: 1; }
+}
+.glow-breathe { animation: glow-breathe 9s ease-in-out infinite; }
 
 /* ── Reflecting pool (hero) ── */
 @keyframes ripple-line {
@@ -273,6 +278,51 @@ body.locked {
 }
 .sway { animation: sway 5s ease-in-out infinite; }
 
+/* ── 3D paper sky lanterns ── */
+.lantern-sway { position: absolute; inset: 0; transform-origin: 50% 0%; animation: lantern-sway 7s ease-in-out infinite; }
+@keyframes lantern-sway {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(-2.2deg); }
+  50% { transform: translate3d(0, -7%, 0) rotate(2.2deg); }
+}
+.lantern-halo {
+  position: absolute; left: -65%; right: -65%; top: -30%; bottom: -55%; border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(255, 196, 100, .5), rgba(255, 140, 50, .16) 55%, transparent);
+}
+.lantern-body {
+  position: absolute; inset: 0 0 7% 0; overflow: hidden;
+  /* rounded paper crown, gently tapering toward the open base */
+  clip-path: polygon(0% 13%, 3% 6%, 11% 2%, 26% 0%, 74% 0%, 89% 2%, 97% 6%, 100% 13%, 86% 100%, 14% 100%);
+  background: radial-gradient(ellipse 80% 62% at 50% 94%, #fff7da 0%, #ffd986 26%, #f6a043 58%, #c95519 100%);
+}
+.lantern-ribs {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 200%;
+  background: repeating-linear-gradient(90deg, rgba(140, 45, 8, .32) 0 1px, transparent 1px 12.5%);
+  animation: lantern-turn 12s linear infinite;
+}
+@keyframes lantern-turn { to { transform: translate3d(-50%, 0, 0); } }
+.lantern-shade {
+  position: absolute; inset: 0;
+  background:
+    linear-gradient(90deg, rgba(110, 25, 0, .6) 0%, rgba(110, 25, 0, .14) 20%, rgba(255, 244, 210, .26) 40%, rgba(255, 244, 210, 0) 56%, rgba(110, 25, 0, .2) 78%, rgba(90, 18, 0, .65) 100%),
+    linear-gradient(180deg, rgba(90, 20, 0, .4) 0%, rgba(90, 20, 0, 0) 32%),
+    linear-gradient(180deg, transparent 72%, rgba(120, 40, 5, .35) 74%, transparent 76%);
+}
+.lantern-rim {
+  position: absolute; left: 13%; right: 13%; bottom: 3%; height: 9%; border-radius: 50%;
+  background: radial-gradient(ellipse at 50% 35%, #fffbea 0%, #ffcc66 55%, #9c3a0c 100%);
+}
+.lantern-flame {
+  position: absolute; left: 41%; width: 18%; bottom: 7%; height: 14%;
+  border-radius: 50% 50% 45% 45% / 65% 65% 35% 35%;
+  background: radial-gradient(ellipse at 50% 70%, #fff 0%, #ffe28a 45%, rgba(255, 170, 60, 0) 72%);
+}
+@keyframes lantern-rise {
+  0% { transform: translate3d(0, 0, 0); opacity: 0; }
+  8% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate3d(var(--drift), -125vh, 0); opacity: 0; }
+}
+
 /* temple pennant fluttering from its staff */
 @keyframes flag-wave {
   0%, 100% { transform: skewY(0deg) scaleX(1); }
@@ -297,6 +347,24 @@ body.locked {
 
 .tilt-scene { perspective: 1100px; }
 
+/* scrolling: SVG-internal loops pause so the parallax gets the whole frame budget (see lib/perf.js) */
+svg[data-paused] * { animation-play-state: paused !important; }
+
+/* reflections: drawn once — animating anything under an SVG filter re-runs the filter every frame */
+.still * { animation: none !important; }
+
+/* low-end phones (see src/lib/perf.js): drop large-area / decorative loops, keep the essentials */
+[data-lite] .lantern-sway,
+[data-lite] .lantern-ribs,
+[data-lite] .lantern-flame,
+[data-lite] .glow-breathe,
+[data-lite] .river-shimmer,
+[data-lite] .ripple-ring,
+[data-lite] .flood-sweep,
+[data-lite] .gold-text,
+[data-lite] svg[data-scene] * { animation: none !important; }
+[data-lite] .lantern-halo { left: -40%; right: -40%; top: -20%; bottom: -35%; }
+
 /* behind the opener: freeze all looping CSS animations */
 .anim-paused *,
 .anim-paused *::before,
@@ -305,5 +373,5 @@ body.locked {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .flicker, .sway, .ring, .gold-text, .river-flow, .river-shimmer, .river-glint, .boat-drift, .ripple-line, .ripple-ring, .bob, .jet-flow, .splash, .lantern-pulse, .flood-sweep, .flag-wave { animation: none !important; }
+  .flicker, .sway, .ring, .gold-text, .river-flow, .river-shimmer, .river-glint, .boat-drift, .ripple-line, .ripple-ring, .bob, .jet-flow, .splash, .lantern-pulse, .flood-sweep, .flag-wave, .lantern-sway, .lantern-ribs, .glow-breathe { animation: none !important; }
 }

@@ -1,5 +1,6 @@
 import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useTransform } from 'framer-motion'
+import useSmoothProgress from '../../lib/useSmoothProgress'
 import ArchFrame from '../motifs/Arch'
 import { CoupleArt } from '../motifs/EventArt'
 import { AlponaDivider, AlponaLotus, ChikanSpray, Kite, Shankha } from '../motifs/Motifs'
@@ -34,7 +35,7 @@ export default function Couple() {
   const { groom, bride } = config.couple
   const { welcome } = config
   const ref = useRef(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const scrollYProgress = useSmoothProgress(ref, ['start end', 'end start'])
   const archY = useTransform(scrollYProgress, [0, 1], [60, -60])
   const lotusRot = useTransform(scrollYProgress, [0, 1], [0, 90])
 

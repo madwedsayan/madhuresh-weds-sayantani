@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { motion } from 'framer-motion'
 import LanternField, { Stars } from '../Lanterns'
+import { LITE } from '../../lib/perf'
 import { TwilightSkyline } from '../motifs/Scenery'
 import { AlponaDivider } from '../motifs/Motifs'
 import { archPath } from '../motifs/Arch'
@@ -41,7 +42,7 @@ export default function Finale() {
   return (
     <footer className="relative overflow-hidden text-white" style={{ background: 'linear-gradient(180deg, var(--finale-1) 0%, var(--finale-2) 70%, #3a2a6a 100%)' }}>
       <Stars count={90} seed={77} />
-      <LanternField mode="rise" count={16} seed={88} minSize={10} maxSize={28} />
+      <LanternField mode="rise" count={LITE ? 8 : 16} seed={88} minSize={10} maxSize={28} />
 
       <div className="relative z-10 px-6 pb-[42vw] pt-28 text-center md:pb-[30vw] md:pt-36 lg:pb-[24vw]">
         <p className="font-hindi text-lg text-[var(--gold-light)]/90">

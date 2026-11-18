@@ -1,5 +1,6 @@
 import { useEffect, useId, useState } from 'react'
 import { rng } from '../../lib/random'
+import { LITE } from '../../lib/perf'
 
 /** True on wide/fine-pointer screens — the animated displacement filter is desktop-only. */
 function useRichWater() {
@@ -68,7 +69,7 @@ export default function ReflectingPool({ x = 0, width = 1200, waterY = 560, heig
   const ripples = (() => {
     const r = rng(17)
     const out = []
-    for (let i = 0; i < 46; i++) {
+    for (let i = 0; i < (LITE ? 18 : 46); i++) {
       const t = Math.pow(r(), 1.6) // more lines near the top (far)
       const y = waterY + 6 + t * (height - 14)
       const len = 18 + t * 150 + r() * 40
@@ -115,7 +116,7 @@ export default function ReflectingPool({ x = 0, width = 1200, waterY = 560, heig
       {/* mirrored scene, rippled + fading with depth */}
       {reflection && (
         <g mask={`url(#${uid}-mask)`}>
-          <g filter={`url(#${uid}-ripple)`} opacity=".7">
+          <g filter={`url(#${uid}-ripple)`} opacity=".7" className="still">
             <g transform={`translate(0 ${waterY * 2}) scale(1 -1)`}>{reflection}</g>
           </g>
         </g>

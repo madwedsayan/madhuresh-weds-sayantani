@@ -1,5 +1,6 @@
 import { useRef } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useTransform } from 'framer-motion'
+import useSmoothProgress from '../../lib/useSmoothProgress'
 import { archPath } from '../motifs/Arch'
 import { IconPin } from '../motifs/Icons'
 import config from '../../config/inviteConfig'
@@ -132,7 +133,7 @@ function YellowTaxi({ wheelRot }) {
 
 export default function Procession() {
   const ref = useRef(null)
-  const { scrollYProgress: p } = useScroll({ target: ref, offset: ['start start', 'end end'] })
+  const p = useSmoothProgress(ref, ['start start', 'end end'])
   const ghodiX = useTransform(p, [0, 1], ['-60vw', '115vw'])
   const taxiX = useTransform(p, [0, 1], ['110vw', '-70vw'])
   const wheelRot = useTransform(p, [0, 1], [0, -1440])

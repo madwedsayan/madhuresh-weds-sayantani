@@ -1,19 +1,26 @@
 import { useMemo } from 'react'
 import { rng } from '../lib/random'
 
-/** A single glowing sky lantern (pure CSS — cheap on mobile GPUs). */
-export function Lantern({ size = 24, style, className = '' }) {
+/**
+ * A 3D-looking paper sky lantern (kongming): tapered paper shell lit from the flame at its open base,
+ * cylindrical shading, bamboo ribs that slowly turn past (the lantern rotating as it drifts), a glowing
+ * rim and a soft halo. Pure CSS with transform/opacity animations only — cheap on mobile GPUs.
+ */
+export function Lantern({ size = 24, style, className = '', seed = 0, lite = false }) {
+  // lite: for rising lanterns (opener/finale) — already moving, so skip the sway + turning ribs
+  const detailed = size >= 18 && !lite
+  const t = (seed * 7.3) % 1
   return (
-    <div className={`absolute ${className}`} style={{ width: size, height: size * 1.32, ...style }} aria-hidden>
-      <div
-        className="flicker h-full w-full"
-        style={{
-          borderRadius: `${size * 0.28}px ${size * 0.28}px ${size * 0.18}px ${size * 0.18}px`,
-          background: 'radial-gradient(ellipse at 50% 72%, #fff6d0 0%, #ffd27a 22%, #ff9b3d 55%, #d9480f 100%)',
-          boxShadow: `0 0 ${size * 0.8}px ${size * 0.15}px rgba(255,155,60,.55), inset 0 -${size * 0.12}px ${size * 0.2}px rgba(255,255,255,.35)`,
-          animationDelay: style?.animationDelay,
-        }}
-      />
+    <div className={`absolute ${className}`} style={{ width: size, height: size * 1.36, ...style }} aria-hidden>
+      <div className={lite ? 'absolute inset-0' : 'lantern-sway'} style={lite ? undefined : { animationDuration: `${5.5 + t * 3}s`, animationDelay: `${-t * 8}s` }}>
+        <span className="lantern-halo" />
+        <span className="lantern-body">
+          {detailed && <span className="lantern-ribs" style={{ animationDuration: `${10 + t * 8}s`, animationDirection: t > 0.5 ? 'reverse' : 'normal' }} />}
+          <span className="lantern-shade" />
+        </span>
+        <span className="lantern-rim" />
+        {size >= 18 && <span className="lantern-flame flicker" style={{ animationDelay: `${-t * 3}s` }} />}
+      </div>
     </div>
   )
 }
@@ -22,7 +29,7 @@ export function Lantern({ size = 24, style, className = '' }) {
  * A field of lanterns. mode="static" → positioned only (parent moves the layer with scroll).
  * mode="rise" → each lantern continuously rises with CSS keyframes (opener / finale).
  */
-export default function LanternField({ count = 16, seed = 1, minSize = 14, maxSize = 34, mode = 'static', height = 100, blur = 0, opacity = 1, className = '' }) {
+export default function LanternField({ count = 16, seed = 1, minSize = 14, maxSize = 34, mode = 'static', height = 100, opacity = 1, className = '' }) {
   const lanterns = useMemo(() => {
     const r = rng(seed)
     return Array.from({ length: count }).map(() => ({
@@ -37,7 +44,7 @@ export default function LanternField({ count = 16, seed = 1, minSize = 14, maxSi
   }, [count, seed, minSize, maxSize, height])
 
   return (
-    <div className={`pointer-events-none absolute inset-0 ${className}`} style={{ filter: blur ? `blur(${blur}px)` : undefined, opacity }} aria-hidden>
+    <div className={`pointer-events-none absolute inset-0 ${className}`} style={{ opacity }} aria-hidden>
       {lanterns.map((l, i) =>
         mode === 'rise' ? (
           <div
@@ -46,17 +53,16 @@ export default function LanternField({ count = 16, seed = 1, minSize = 14, maxSi
             style={{
               left: `${l.left}%`,
               bottom: '-12vh',
-              animation: `rise ${l.dur}s linear ${l.delay}s infinite`,
+              animation: `lantern-rise ${l.dur}s cubic-bezier(.45,.05,.55,.95) ${l.delay}s infinite`,
               '--drift': `${l.drift}px`,
             }}
           >
-            <Lantern size={l.size} style={{ position: 'relative', animationDelay: `${l.flick}s` }} />
+            <Lantern size={l.size} seed={i + 1} lite style={{ position: 'relative' }} />
           </div>
         ) : (
-          <Lantern key={i} size={l.size} style={{ left: `${l.left}%`, top: `${l.top}%`, animationDelay: `${l.flick}s` }} />
+          <Lantern key={i} size={l.size} seed={i + 1 + seed} style={{ left: `${l.left}%`, top: `${l.top}%` }} />
         ),
       )}
-      <style>{`@keyframes rise { 0% { transform: translate(0,0); opacity: 0 } 8% { opacity: 1 } 85% { opacity: 1 } 100% { transform: translate(var(--drift), -125vh); opacity: 0 } }`}</style>
     </div>
   )
 }
@@ -72,7 +78,7 @@ export function Stars({ count = 70, seed = 9, className = '' }) {
       {stars.map((s, i) => (
         <span
           key={i}
-          className="absolute rounded-full bg-white"
+          className="star absolute rounded-full bg-white"
           style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.s, height: s.s, animation: `twinkle ${s.d}s ease-in-out ${s.o}s infinite`, boxShadow: '0 0 4px #fff' }}
         />
       ))}
