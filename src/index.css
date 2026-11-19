@@ -323,6 +323,12 @@ body.locked {
   100% { transform: translate3d(var(--drift), -125vh, 0); opacity: 0; }
 }
 
+/* finale skyline swipe hint + hidden scrollbar */
+.no-scrollbar { scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+@keyframes swipe-nudge { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-5px); } }
+.swipe-nudge { display: inline-block; animation: swipe-nudge 1.4s ease-in-out infinite; }
+
 /* temple pennant fluttering from its staff */
 @keyframes flag-wave {
   0%, 100% { transform: skewY(0deg) scaleX(1); }

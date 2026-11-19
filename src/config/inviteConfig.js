@@ -84,22 +84,6 @@ const inviteConfig = {
    */
   events: [
     {
-      id: 'tilak',
-      title: 'Tilak',
-      native: 'तिलक',
-      subtitle: "Groom's side · Lucknow",
-      blurb: 'The bride’s family blesses the groom with tilak, welcoming him into their fold.',
-      dateDisplay: '[DATE & TIME]',
-      startISO: '2027-02-10T11:00:00+05:30',
-      endISO: '2027-02-10T14:00:00+05:30',
-      venue: '[VENUE NAME & ADDRESS]',
-      mapsUrl: GOOGLE_MAPS_URL, // [GOOGLE MAPS ROUTE LINK]
-      image: null,
-      imageLabel: '[PLACEHOLDER: AI-GENERATED EVENT IMAGE]',
-      art: 'tilak',
-      tone: 'crimson',
-    },
-    {
       id: 'aiburobhat',
       title: 'Aiburobhat',
       native: 'আইবুড়োভাত',

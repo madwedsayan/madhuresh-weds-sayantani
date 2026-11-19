@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import LanternField, { Stars } from '../Lanterns'
 import { LITE } from '../../lib/perf'
@@ -18,6 +18,49 @@ function useCountdown(targetISO) {
   }, [target])
   const s = Math.floor(ms / 1000)
   return { done: ms === 0 || Number.isNaN(target), d: Math.floor(s / 86400), h: Math.floor((s % 86400) / 3600), m: Math.floor((s % 3600) / 60), s: s % 60 }
+}
+
+/**
+ * Skyline strip. On phones it's drawn wider than the screen and scrolls sideways (swipe) so every
+ * monument shows — Dakshineswar, Victoria Memorial, Howrah Bridge, Chota & Bara Imambara. Starts on the bridge.
+ */
+function SkylineScroller() {
+  const ref = useRef(null)
+  const [hint, setHint] = useState(true)
+  const touched = useRef(false) // hide the hint only after the guest swipes (not on our own centring)
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const centre = () => {
+      el.scrollLeft = (el.scrollWidth - el.clientWidth) / 2
+    }
+    centre()
+    const ro = new ResizeObserver(centre)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  return (
+    <div className="absolute inset-x-0 bottom-0 z-0">
+      <div
+        ref={ref}
+        className="no-scrollbar overflow-x-auto overflow-y-hidden overscroll-x-contain"
+        onPointerDown={() => (touched.current = true)}
+        onTouchStart={() => (touched.current = true)}
+        onWheel={() => (touched.current = true)}
+        onScroll={() => hint && touched.current && setHint(false)}
+        aria-label="Skyline — swipe sideways to explore"
+      >
+        <div className="w-[max(100%,1150px)] md:w-full">
+          <TwilightSkyline className="block h-auto w-full" />
+        </div>
+      </div>
+      {hint && (
+        <p className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-center gap-2 font-sans text-[10px] uppercase tracking-[0.3em] text-white/70 md:hidden">
+          <span className="swipe-nudge">←</span> swipe to explore <span className="swipe-nudge" style={{ animationDirection: 'reverse' }}>→</span>
+        </p>
+      )}
+    </div>
+  )
 }
 
 function Tile({ value, label }) {
@@ -44,7 +87,7 @@ export default function Finale() {
       <Stars count={90} seed={77} />
       <LanternField mode="rise" count={LITE ? 8 : 16} seed={88} minSize={10} maxSize={28} />
 
-      <div className="relative z-10 px-6 pb-[42vw] pt-28 text-center md:pb-[30vw] md:pt-36 lg:pb-[24vw]">
+      <div className="relative z-10 px-6 pb-[300px] pt-28 text-center md:pb-[30vw] md:pt-36 lg:pb-[24vw]">
         <p className="font-hindi text-lg text-[var(--gold-light)]/90">
           शुभ विवाह · <span className="font-bangla">শুভ বিবাহ</span>
         </p>
@@ -71,8 +114,8 @@ export default function Finale() {
         <p className="mt-6 font-serif text-lg italic text-white/80">{finale.closing}</p>
       </div>
 
-      <TwilightSkyline className="absolute inset-x-0 bottom-0 z-0 h-auto w-full min-h-[200px]" />
-      {audio.credit && <p className="absolute inset-x-0 bottom-2 z-10 px-16 text-center font-sans text-[9px] leading-tight text-white/40">{audio.credit}</p>}
+      <SkylineScroller />
+      {audio.credit && <p className="pointer-events-none absolute inset-x-0 bottom-2 z-10 px-16 text-center font-sans text-[9px] leading-tight text-white/40">{audio.credit}</p>}
     </footer>
   )
 }

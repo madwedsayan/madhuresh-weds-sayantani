@@ -93,35 +93,92 @@ const arts = {
       <circle cx="70" cy="290" r="6" fill="#f0f4c3" />
     </g>
   ),
-  mehendi: (
-    <g>
-      <Bg id="bm" a="#9be0c8" b="#2c8a74" />
-      <g transform="translate(150 230)">
-        <path d="M-50 160 C -56 100, -64 40, -72 0 C -78 -24, -60 -32, -50 -12 L -38 18 L -40 -70 C -40 -86, -18 -86, -18 -70 L -14 -10 L -10 -90 C -10 -106, 12 -106, 12 -90 L 12 -12 L 22 -82 C 24 -98, 46 -96, 44 -80 L 36 -6 L 50 -58 C 54 -72, 74 -68, 70 -52 L 54 40 C 50 90, 46 130, 44 160 Z" fill="#f2c9a5" stroke="#b07a52" strokeWidth="1.5" />
-        <g fill="none" stroke="#8a3b12" strokeWidth="1.6" strokeLinecap="round">
-          <circle cx="0" cy="40" r="22" />
-          <circle cx="0" cy="40" r="12" />
-          {Array.from({ length: 12 }).map((_, i) => (
-            <path key={i} transform={`rotate(${i * 30} 0 40)`} d="M0 18 q4 -6 0 -12 q-4 6 0 12" />
-          ))}
-          <circle cx="0" cy="40" r="3" fill="#8a3b12" />
-          <path d="M-30 80 q30 16 60 0 M-32 96 q32 16 64 0" />
-          <path d="M-28 110 l56 0" strokeDasharray="2 4" />
-          {[-29, -1, 23, 47].map((x, i) => (
-            <path key={i} d={`M${x} ${-60 + (i === 0 ? 0 : -14 + i * 4)} v12 M${x - 4} ${-44 + i * 2} h8`} />
-          ))}
-          <path d="M-60 -6 q6 -6 12 0" />
+  mehendi: (() => {
+    // raised palm with alta-red nails & lines, jasmine on an alta circle, red-and-pearl bangles
+    const skin = '#f3c6a2'
+    const line = '#b07a52'
+    const red = '#c1121f'
+    const fingers = [
+      // cx, top, width, bottom, rotation (about the finger base)
+      [104, 128, 22, 214, -10],
+      [127, 92, 25, 210, -4],
+      [153, 74, 26, 210, 0],
+      [179, 90, 25, 212, 5],
+    ]
+    const jasmine = (x, y, r, rot) => (
+      <g transform={`translate(${x} ${y}) rotate(${rot})`}>
+        {Array.from({ length: 6 }).map((_, i) => (
+          <path key={i} transform={`rotate(${i * 60})`} d={`M0 0 C ${r * 0.35} ${-r * 0.3}, ${r * 0.3} ${-r * 0.85}, 0 ${-r} C ${-r * 0.3} ${-r * 0.85}, ${-r * 0.35} ${-r * 0.3}, 0 0 Z`} fill="#fffdf6" stroke="#cfc6b4" strokeWidth=".8" />
+        ))}
+        <circle r={r * 0.18} fill="#e9d36a" />
+      </g>
+    )
+    const pearls = (y) => (
+      <g key={`p${y}`}>
+        <rect x="106" y={y - 1} width="88" height="2" fill="#c9a24b" />
+        {Array.from({ length: 11 }).map((_, i) => (
+          <circle key={i} cx={110 + i * 8} cy={y} r="3.3" fill="#fffaf0" stroke="#d8cdb6" strokeWidth=".6" />
+        ))}
+      </g>
+    )
+    const redBand = (y) => (
+      <g key={`r${y}`}>
+        <rect x="104" y={y} width="92" height="12" rx="6" fill={red} />
+        <rect x="108" y={y + 2} width="84" height="3" rx="1.5" fill="#fff" opacity=".28" />
+        <rect x="104" y={y + 9} width="92" height="3" rx="1.5" fill="#000" opacity=".18" />
+      </g>
+    )
+    return (
+      <g>
+        <Bg id="bm" a="#fbeedd" b="#e8c3a0" />
+        {/* fingers */}
+        {fingers.map(([cx, top, w, bottom, r], i) => (
+          <g key={i} transform={`rotate(${r} ${cx} ${bottom})`}>
+            <rect x={cx - w / 2} y={top} width={w} height={bottom - top} rx={w / 2} fill={skin} stroke={line} strokeWidth="1.4" />
+            <ellipse cx={cx} cy={top + 10} rx={w * 0.33} ry="9" fill={red} />
+            {/* alta lines down each finger with joint bars */}
+            <path d={`M${cx} ${top + 26} V${bottom - 18}`} stroke={red} strokeWidth="2.2" strokeLinecap="round" />
+            <path d={`M${cx - 5} ${top + 40} h10 M${cx - 5} ${top + 64} h10`} stroke={red} strokeWidth="1.6" strokeLinecap="round" />
+          </g>
+        ))}
+        {/* gold ring on the ring finger */}
+        <g transform="rotate(-4 127 210)">
+          <rect x="113" y="168" width="28" height="7" rx="3.5" fill="#d9a441" stroke="#9c7322" strokeWidth=".8" />
+          <rect x="116" y="169" width="20" height="2" rx="1" fill="#ffe8a3" />
         </g>
+        {/* thumb */}
+        <g transform="rotate(34 204 252)">
+          <rect x="191" y="160" width="26" height="96" rx="13" fill={skin} stroke={line} strokeWidth="1.4" />
+          <ellipse cx="204" cy="170" rx="8.5" ry="9" fill={red} />
+          <path d="M204 186 V232" stroke={red} strokeWidth="2.2" strokeLinecap="round" />
+        </g>
+        {/* palm + wrist */}
+        <path d="M92 196 C 88 236, 102 274, 116 300 L 116 400 L 184 400 L 184 300 C 198 282, 214 258, 216 238 C 218 222, 210 206, 196 200 C 170 192, 120 190, 92 196 Z" fill={skin} stroke={line} strokeWidth="1.4" />
+        <path d="M100 236 q6 22 20 40" stroke={line} strokeWidth="1" fill="none" opacity=".5" />
+        {/* alta circle with a dotted ring, a line down to the wrist and a small motif */}
+        <circle cx="152" cy="244" r="17" fill={red} />
+        {Array.from({ length: 16 }).map((_, i) => {
+          const a = (i / 16) * Math.PI * 2
+          return <circle key={i} cx={152 + Math.cos(a) * 25} cy={244 + Math.sin(a) * 25} r="1.8" fill={red} />
+        })}
+        <path d="M152 270 V296" stroke={red} strokeWidth="2" strokeLinecap="round" />
+        <path d="M152 278 l-8 10 l8 6 l8 -6 z" fill="none" stroke={red} strokeWidth="1.6" />
+        <path d="M140 296 l12 -6 l12 6" stroke={red} strokeWidth="1.6" fill="none" strokeLinecap="round" />
+        {/* jasmine flowers held on the palm */}
+        {jasmine(140, 226, 17, 10)}
+        {jasmine(166, 220, 15, -14)}
+        {/* bangles: pearl rows between red shakha-pola bands */}
+        {pearls(306)}
+        {redBand(312)}
+        {redBand(326)}
+        {pearls(344)}
+        {redBand(350)}
+        {redBand(364)}
+        {pearls(382)}
+        {redBand(388)}
       </g>
-      {/* mehendi cone */}
-      <g transform="translate(228 120) rotate(35)">
-        <path d="M-10 -50 h20 l-10 70 z" fill="#8a5a2b" />
-        <path d="M-12 -50 h24 v-6 h-24z" fill="#d4a373" />
-      </g>
-      <Marigold x={60} y={92} r={14} />
-      <Marigold x={86} y={70} r={10} c="#ffb703" />
-    </g>
-  ),
+    )
+  })(),
   haldi: (
     <g>
       <Bg id="bh" a="#ffe066" b="#e08e0b" />
