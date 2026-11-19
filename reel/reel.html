@@ -9,11 +9,13 @@ text{paint-order:stroke}</style></head><body>
   <linearGradient id="river" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2a6a"/><stop offset="1" stop-color="#0b0a26"/></linearGradient>
   <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffe7a8" stop-opacity=".9"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
   <filter id="paperShadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity=".45"/></filter>
+  <pattern id="airmail" width="56" height="56" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="56" height="56" fill="#fbf3e4"/><rect width="18" height="56" fill="#c1121f"/><rect x="28" width="18" height="56" fill="#1d3f8a"/></pattern>
   <path id="ringPath" d="M -112 0 A 112 112 0 1 1 112 0 A 112 112 0 1 1 -112 0"/>
 </defs>
 <rect width="1080" height="1920" fill="url(#sky)"/>
 <g id="stars"></g>
 <g id="world">
+  <g id="map"></g>
   <g id="strings"></g>
   <g id="card">
     <g id="cardBack"></g>
@@ -30,7 +32,7 @@ text{paint-order:stroke}</style></head><body>
 </g>
 <g id="end"></g>
 <g id="hud"></g>
-<g opacity="0"><text font-family="Homemade Apple">Madhuresh &amp; Sayantani</text><text font-family="Kalam" font-weight="700">From To</text><text font-family="Kalam">From To</text><text font-family="Cinzel" font-weight="700">MR MRS</text><text font-family="Cinzel" font-weight="600">A</text><text font-family="Tiro Devanagari Hindi">मधुरेश वो काटा</text><text font-family="Tiro Bangla">সায়ন্তনী ভোকাট্টা</text><text font-family="Cormorant Garamond">Joined</text><text font-family="Plus Jakarta Sans" font-weight="700">Baraat</text></g>
+<g opacity="0"><text font-family="Homemade Apple">Madhuresh &amp; Sayantani</text><text font-family="Kalam" font-weight="700">From To</text><text font-family="Kalam">From To</text><text font-family="Cinzel" font-weight="700">MR MRS</text><text font-family="Cinzel" font-weight="600">A</text><text font-family="Tiro Devanagari Hindi">मधुरेश सफ़र में मिले, हमसफ़र बने हवाई डाक यात्रा</text><text font-family="Tiro Bangla">সায়ন্তনী পথে দেখা, পথেই সাথী বিমান ডাক</text><text font-family="Cormorant Garamond">Joined</text><text font-family="Plus Jakarta Sans" font-weight="700">Baraat</text></g>
 </svg>
 <script>
 // ───────── helpers ─────────
@@ -57,21 +59,53 @@ const shake=(t,t0,A,dur,seed)=>{const k=(t-t0)/dur;if(k<0||k>1)return[0,0];const
 const starR=rng(7);const STARS=Array.from({length:44},()=>({x:starR()*1080,y:starR()*1920,r:1.2+starR()*2.2,o:.4+starR()*.5,ph:starR()*6}))
 function stars(t,dy){return STARS.map(s=>`<circle cx="${s.x}" cy="${((s.y+dy*.25)%1920+1920)%1920}" r="${s.r}" fill="${CREAM}" opacity="${(s.o*(.65+.35*Math.sin(t*2+s.ph))).toFixed(2)}"/>`).join('')}
 
-// ───────── kites ─────────
-function kite(x,y,rot,col,tail,s=1){
-  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">
-    <path d="M0 -84 L62 0 L0 96 L-62 0 Z" fill="${col}" stroke="#0b0a26" stroke-width="3" stroke-linejoin="round"/>
-    <path d="M0 -84 L0 96 M-62 0 Q0 -26 62 0" stroke="#fbe7c0" stroke-width="3" fill="none" opacity=".85"/>
-    <path d="M-20 0 L0 -30 L20 0 L0 34 Z" fill="${tail}" opacity=".9"/>
-    <path d="M0 96 q 14 30 -6 58 q -20 28 4 60" stroke="${tail}" stroke-width="4" fill="none"/>
-    ${[0,1,2].map(i=>`<path d="M${(i%2?6:-6)} ${130+i*30} l-12 -8 l0 16 z M${(i%2?6:-6)} ${130+i*30} l12 -8 l0 16 z" fill="${tail}"/>`).join('')}
-  </g>`
-}
-function braid(ax,ay,bx,by,amp,t){ // two strands twisting between A and B
-  const n=40,dx=bx-ax,dy=by-ay,L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L
-  const strand=ph=>{let d='';for(let i=0;i<=n;i++){const k=i/n;const w=amp*Math.sin(k*L/18+ph+t*6);d+=(i?'L':'M')+(ax+dx*k+nx*w).toFixed(1)+' '+(ay+dy*k+ny*w).toFixed(1)}return d}
-  return `<path d="${strand(0)}" stroke="#fbe7c0" stroke-width="3" fill="none"/><path d="${strand(Math.PI)}" stroke="${GOLDL}" stroke-width="3" fill="none"/>`
-}
+// ───────── travel pieces ─────────
+function plane(x,y,ang,sc=1){ // top-down airliner pointing along +x
+  return `<g transform="translate(${x} ${y}) rotate(${ang}) scale(${sc})">
+   <ellipse cx="3" cy="10" rx="52" ry="11" fill="#000" opacity=".25" transform="translate(6 10)"/>
+   <path d="M8 -4 L-16 -54 L-30 -54 L-18 -4 Z M8 4 L-16 54 L-30 54 L-18 4 Z" fill="${CREAM}" stroke="${NAVY}" stroke-width="2.5" stroke-linejoin="round"/>
+   <path d="M-36 -3 L-50 -22 L-58 -22 L-50 -3 Z M-36 3 L-50 22 L-58 22 L-50 3 Z" fill="${CREAM}" stroke="${NAVY}" stroke-width="2.5" stroke-linejoin="round"/>
+   <path d="M-56 0 C -56 -8,-40 -10,0 -10 C 30 -10,52 -8,58 0 C 52 8,30 10,0 10 C -40 10,-56 8,-56 0 Z" fill="${CREAM}" stroke="${NAVY}" stroke-width="2.5"/>
+   <path d="M-40 0 H40" stroke="${SIND}" stroke-width="3"/><path d="M46 -5 q8 5 0 10" stroke="${NAVY}" stroke-width="3" fill="none"/>
+   <circle cx="-8" cy="-30" r="4" fill="${SIND}"/><circle cx="-8" cy="30" r="4" fill="${SIND}"/></g>`}
+// Catmull-Rom spline through points, resampled by arc length
+function spline(pts,n=24){const out=[];for(let i=0;i<pts.length-1;i++){const p0=pts[Math.max(0,i-1)],p1=pts[i],p2=pts[i+1],p3=pts[Math.min(pts.length-1,i+2)]
+  for(let j=0;j<n;j++){const u=j/n,u2=u*u,u3=u2*u;out.push([0,1].map(k=>.5*((2*p1[k])+(-p0[k]+p2[k])*u+(2*p0[k]-5*p1[k]+4*p2[k]-p3[k])*u2+(-p0[k]+3*p1[k]-3*p2[k]+p3[k])*u3)))}}
+  out.push(pts[pts.length-1]);const cum=[0];for(let i=1;i<out.length;i++)cum.push(cum[i-1]+Math.hypot(out[i][0]-out[i-1][0],out[i][1]-out[i-1][1]));return{pts:out,cum,len:cum[cum.length-1]}}
+function at(sp,d){d=clamp(d,0,sp.len);let i=1;while(i<sp.cum.length-1&&sp.cum[i]<d)i++;const a=sp.pts[i-1],b=sp.pts[i],k=(d-sp.cum[i-1])/((sp.cum[i]-sp.cum[i-1])||1)
+  return{x:lerp(a[0],b[0],k),y:lerp(a[1],b[1],k),ang:Math.atan2(b[1]-a[1],b[0]-a[0])*180/Math.PI}}
+function trail(sp,d,col,op){let s='';const step=26;for(let x=step;x<d-70;x+=step){const p=at(sp,x);s+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4" fill="${col}" opacity="${op}"/>`}return s}
+// flight route (world coords): through the stamps, down to the pin on the postcard, then away
+const ROUTE=[[-160,560],[380,330],[900,520],[830,960],[300,1120],[230,1520],[650,1840],[830,2180],[560,2420]]
+const ROUTE_EXIT=[[560,2420],[380,2330],[-250,2120]]
+const RT=spline(ROUTE), RX=spline(ROUTE_EXIT)
+const T_FLY0=2.9, T_PIN=6.15, T_EXIT=7.2
+// passport stamps (placeholder places — swap for the couple's real trips)
+const GLYPH={mountain:'M-34 14 L-12 -18 L0 -2 L12 -22 L34 14 M-18 -10 l6 4 l6 -6',tower:'M-16 18 L-4 -26 h8 L16 18 M-11 2 H11 M-7 -10 H7 M-6 18 q6 -10 12 0',
+  wave:'M-34 2 q8.5 -12 17 0 t17 0 t17 0 t17 0 M-34 14 q8.5 -12 17 0 t17 0 t17 0 t17 0',palm:'M2 18 Q 6 -2 -2 -18 M-2 -18 q-18 -6 -30 6 M-2 -18 q16 -8 30 4 M-2 -18 q-8 -12 -24 -10 M-2 -18 q10 -12 24 -8',
+  arch:'M-28 18 V-2 q28 -32 56 0 V18 M-12 18 V4 q12 -14 24 0 V18 M-32 -2 H32',boat:'M-36 2 H36 L26 16 H-26 Z M-22 2 V-12 Q0 -20 22 -12 V2',
+  flake:'M0 -22 V22 M-19 -11 L19 11 M-19 11 L19 -11 M-6 -18 L0 -12 L6 -18 M-6 18 L0 12 L6 18'}
+const STAMPS=[['LADAKH','mountain','rect',GOLDL,250,370,-9],['PARIS','tower','circle','#ff9eb1',830,320,8],['GOA','wave','oval','#8fe0cf',600,650,-4],
+  ['BALI','palm','circle','#f59f00',215,1300,7],['JAIPUR','arch','rect','#ff9eb1',860,1250,-8],['KERALA','boat','oval',GOLDL,330,1650,9],['SWITZERLAND','flake','circle','#b9c8ff',800,1640,-6]]
+const T_STAMP=i=>.35+i*.3
+function stamp([name,g,shape,col],k,fade){
+  const fs=Math.min(40,(shape==='circle'?175:215)/(name.length*.74))
+  const frame=shape==='circle'?`<circle r="112" stroke-width="5"/><circle r="98" stroke-width="2" stroke-dasharray="7 5"/>`
+   :shape==='oval'?`<ellipse rx="150" ry="98" stroke-width="5"/><ellipse rx="136" ry="84" stroke-width="2"/>`
+   :`<rect x="-140" y="-92" width="280" height="184" rx="14" stroke-width="5"/><rect x="-128" y="-80" width="256" height="160" rx="8" stroke-width="2"/>`
+  const sc=1.22*lerp(1.8,1,E.inCubic(k)), op=clamp(k*3)*fade
+  return `<g transform="scale(${sc})" opacity="${op}"><g fill="none" stroke="${col}">${frame}<path d="${GLYPH[g]}" transform="translate(0 -36)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></g>
+   ${txt(0,20+fs*.35,name,fs,col,{font:'Cinzel',weight:700})}${txt(0,62,'✈ ARRIVED · TOGETHER',13,col,{font:"'Plus Jakarta Sans',sans-serif",weight:700})}
+   ${[0,1,2,3,4].map(i=>{const r=rng(name.length*31+i);return `<circle cx="${(r()*2-1)*120}" cy="${(r()*2-1)*90}" r="${1.5+r()*2.5}" fill="${col}" opacity=".5"/>`}).join('')}</g>`}
+function mapGrid(op){let s=`<g stroke="${CREAM}" stroke-width="1.5" fill="none" opacity="${op}">`
+  for(let i=1;i<=5;i++)s+=`<ellipse cx="540" cy="1300" rx="${i*120}" ry="1500"/>`
+  s+=`<path d="M540 -200 V2800"/>`;for(let y=-100;y<2800;y+=260)s+=`<path d="M-100 ${y} Q540 ${y-90} 1180 ${y}"/>`
+  s+=`</g><g transform="translate(930 1810)" opacity="${op*2.5}" fill="none" stroke="${GOLDL}" stroke-width="2"><circle r="52"/><circle r="40" stroke-dasharray="3 5"/><path d="M0 -70 L10 0 L0 70 L-10 0 Z M-70 0 L0 10 L70 0 L0 -10 Z" fill="${GOLDL}" fill-opacity=".35"/>${txt(0,-80,'N',24,GOLDL,{font:'Cinzel',weight:700})}</g>`
+  return s}
+function mapPin(x,y,sc=1){return `<g transform="translate(${x} ${y}) scale(${sc})"><path d="M0 0 L0 -26" stroke="#9aa3ad" stroke-width="4" stroke-linecap="round"/>
+  <ellipse cx="4" cy="2" rx="10" ry="4" fill="#000" opacity=".25"/><circle cy="-40" r="22" fill="${SIND}" stroke="#7a0b14" stroke-width="2.5"/><circle cx="-7" cy="-48" r="7" fill="#fff" opacity=".55"/></g>`}
+function airmailBand(w,h){const o=`M${-w/2+14} ${-h/2+14} h${w-28} v${h-28} h${-(w-28)} Z`,i=`M${-w/2+40} ${-h/2+40} h${w-80} v${h-80} h${-(w-80)} Z`
+  return `<path d="${o} ${i}" fill="url(#airmail)" fill-rule="evenodd" opacity=".92"/>`}
 
 // ───────── card pieces ─────────
 const W=1000,H=900
@@ -99,11 +133,14 @@ function rumiStamp(x,y,cancelled){
 function cardBackLandscape(){
   let lines='';for(let i=0;i<6;i++)lines+=`<path d="M-440 ${-120+i*80} H-40" stroke="#c9b48a" stroke-width="2"/>`
   return `<path d="${DECK}" fill="${CREAM}" filter="url(#paperShadow)"/><path d="${DECK}" fill="none" stroke="#e8d9bb" stroke-width="2"/>
+  ${airmailBand(W,H)}
   ${txt(0,-360,'POST CARD · पोस्ट कार्ड · পোস্টকার্ড',40,INK,{font:"'Cinzel','Tiro Devanagari Hindi','Tiro Bangla',serif",weight:700})}
   <path d="M0 -300 V380" stroke="#c9b48a" stroke-width="3"/>${lines}
+  <g transform="translate(-240 -260)"><rect x="-200" y="-32" width="400" height="64" rx="6" fill="#1d3f8a"/>${txt(0,10,'✈ BY AIR MAIL · PAR AVION',26,CREAM,{font:'Cinzel',weight:700})}</g>
+  ${txt(-240,-196,'हवाई डाक · বিমান ডাক',28,'#1d3f8a',{font:"'Tiro Devanagari Hindi','Tiro Bangla',serif"})}
   ${rumiStamp(360,-190,false)}
-  ${txt(60,80,'From: Lucknow 226001',44,INK,{anchor:'start',font:HAND_MIX})}<path d="M60 100 H460" stroke="#c9b48a" stroke-width="2"/>
-  ${txt(60,200,'To: Kolkata 700001',44,INK,{anchor:'start',font:HAND_MIX})}<path d="M60 220 H460" stroke="#c9b48a" stroke-width="2"/>
+  ${txt(40,80,'From: Lucknow 226001',38,INK,{anchor:'start',font:HAND_MIX})}<path d="M40 100 H440" stroke="#c9b48a" stroke-width="2"/>
+  ${txt(40,200,'To: Kolkata 700001',38,INK,{anchor:'start',font:HAND_MIX})}<path d="M40 220 H440" stroke="#c9b48a" stroke-width="2"/>
   <circle cx="0" cy="-428" r="9" fill="#e8d9bb" stroke="#bfa77a" stroke-width="2"/>`
 }
 
@@ -145,13 +182,13 @@ function postmark(op){return `<g opacity="${op}" style="mix-blend-mode:multiply"
 const EVENTS=[['আইবুড়োভাত · Aiburobhat','[DATE] · [VENUE]'],['मेहंदी · Mehendi','[DATE] · [VENUE]'],['हल्दी · গায়ে হলুদ · Haldi · Gaye Holud','[DATE] · [VENUE]'],['संगीत · Sangeet','[DATE] · [VENUE]'],['बारात · Baraat','[DATE] · [TIME] · [VENUE]'],['शुभ विवाह · শুভ বিবাহ · Shubh Vivah','[DATE] · [MUHURAT] · [VENUE]'],['Reception · বউভাত · Bou Bhaat','[DATE] · [VENUE]']]
 function cardBackPortrait(t){
   let s=`<path d="${DECKP}" fill="${CREAM}" filter="url(#paperShadow)"/><path d="${DECKP}" fill="none" stroke="#e8d9bb" stroke-width="2"/>
-  <g transform="scale(-1 1) translate(0 -380)" opacity=".1">${postmark(1)}</g>
-  ${txt(-470,-590,'POST CARD · पोस्ट कार्ड · পোস্টকার্ড',36,INK,{anchor:'start',font:"'Cinzel','Tiro Devanagari Hindi','Tiro Bangla',serif",weight:700})}
-  ${rumiStamp(380,-530,true)}
-  ${txt(-470,-500,'You are invited to celebrate',34,INK,{anchor:'start',font:HAND_MIX})}`
+  ${airmailBand(1000,1390)}<g transform="scale(-1 1) translate(0 -380)" opacity=".1">${postmark(1)}</g>
+  ${txt(-430,-590,'ITINERARY · यात्रा · ভ্রমণসূচি',36,INK,{anchor:'start',font:"'Cinzel','Tiro Devanagari Hindi','Tiro Bangla',serif",weight:700})}
+  ${rumiStamp(350,-500,true)}
+  ${txt(-430,-500,'Next stop: forever. You’re on the itinerary —',32,INK,{anchor:'start',font:HAND_MIX})}`
   EVENTS.forEach(([a,b],i)=>{const k=E.outCubic(seg(t,33.1+i*.133,33.1+i*.133+.25));const y=-400+i*118+12*(1-k)
-    s+=`<g opacity="${k}">${txt(-470,y,a,40,INK,{anchor:'start',font:"'Kalam','Tiro Devanagari Hindi','Tiro Bangla',cursive",weight:700})}${txt(-470,y+42,b,30,'#5b4a3a',{anchor:'start',font:HAND_MIX})}<path d="M-470 ${y+60} H470" stroke="#d8c79f" stroke-width="2"/></g>`})
-  s+=`${txt(470,600,'To: Kolkata 700001',40,INK,{anchor:'end',font:HAND_MIX})}${txt(470,650,'From: Lucknow 226001',30,'#5b4a3a',{anchor:'end',font:HAND_MIX})}`
+    s+=`<g opacity="${k}">${txt(-430,y,a,40,INK,{anchor:'start',font:"'Kalam','Tiro Devanagari Hindi','Tiro Bangla',cursive",weight:700})}${txt(-430,y+42,b,30,'#5b4a3a',{anchor:'start',font:HAND_MIX})}<path d="M-430 ${y+60} H430" stroke="#d8c79f" stroke-width="2"/></g>`})
+  s+=`${txt(430,590,'To: Kolkata 700001',40,INK,{anchor:'end',font:HAND_MIX})}${txt(430,640,'From: Lucknow 226001',30,'#5b4a3a',{anchor:'end',font:HAND_MIX})}`
   return s
 }
 
@@ -186,47 +223,34 @@ window.renderAt=async(t)=>{
   // camera tilt (S2) and lift (S9)
   const tilt=-2000*E.inOutSine(seg(t,5.5,6.9))
   const [sx1,sy1]=shake(t,31.2,14,.4,99), [sx2,sy2]=shake(t,18.2,8,.3,55)
+  let ssx=0,ssy=0;STAMPS.forEach((_,i)=>{const [a,b]=shake(t,T_STAMP(i)+.14,7,.25,200+i);ssx+=a;ssy+=b})
   $('stars').innerHTML=stars(t,tilt)
-  $('world').setAttribute('transform',`translate(${sx1+sx2} ${tilt+sy1+sy2})`)
+  $('world').setAttribute('transform',`translate(${sx1+sx2+ssx} ${tilt+sy1+sy2+ssy})`)
 
-  // ── kites ──
-  const kin=E.outCubic(seg(t,0,1.6))
-  let L=[lerp(-150,360,kin),lerp(1900,640,kin)], K=[lerp(1230,720,kin),lerp(1900,620,kin)]
-  const saw=seg(t,1.8,3.4)>0&&t<3.4?Math.sin((t-1.8)/1.6*Math.PI*2*3)*40:0
-  L[0]+=saw;K[0]-=saw
-  const join=E.inOutSine(seg(t,3.4,4.6))
-  L=[lerp(L[0],470,join),lerp(L[1],600,join)];K=[lerp(K[0],610,join),lerp(K[1],585,join)]
-  const sway=a=>6*Math.sin(t*1.3*2*Math.PI+a)*(1-join*.6)
-  // kites hidden in S3..S8 (above frame); in S9 shown small in end scene instead
-  let kitesSVG=''
-  if(t<9) kitesSVG=kite(L[0],L[1],sway(0)-8*join,LEAF,GOLD,1.4)+kite(K[0],K[1],sway(2)+8*join,MARI,SIND,1.4)
-  $('kites').innerHTML=kitesSVG
-
-  // ── strings / braid ──
-  let str=''
-  const jy=lerp(1150,800,E.inOutSine(seg(t,3.4,4.6)))
-  const knot=[540,2450]
-  if(t<9){
-    const lb=[L[0],L[1]+134],kb=[K[0],K[1]+134]
-    if(t<3.4){
-      const j=(seg(t,1.8,3.4)>0)?[(Math.random?0:0)+540+Math.sin(t*40)*4,1150]:[540,1150]
-      str+=`<path d="M${lb[0]} ${lb[1]} Q ${(lb[0]+1120)/2} ${(lb[1]+2000)/2+60} 1120 2000" stroke="#fbe7c0" stroke-width="2.5" fill="none"/>`
-      str+=`<path d="M${kb[0]} ${kb[1]} Q ${(kb[0]-40)/2} ${(kb[1]+2000)/2+60} -40 2000" stroke="${GOLDL}" stroke-width="2.5" fill="none"/>`
-    } else {
-      str+=`<path d="M${lb[0]} ${lb[1]} L540 ${jy}" stroke="#fbe7c0" stroke-width="2.5"/><path d="M${kb[0]} ${kb[1]} L540 ${jy}" stroke="${GOLDL}" stroke-width="2.5"/>`
-      const swing=E.inOutSine(seg(t,4.6,5.5))
-      const endX=lerp(lerp(540,700,1-seg(t,3.4,4.6)),540,swing), endY=t<5.5?lerp(2050,knot[1],swing*.0)+0:knot[1]
-      // below the junction: the braid down to the knot on the card (card hangs off-screen until the tilt)
-      str+=braid(540,jy,540,knot[1],7*seg(t,3.4,3.9),t)
-    }
-  }
-  $('strings').innerHTML=str
+  // ── S1 travel diary: map, stamps, plane route, pin ──
+  let mapS='',trailS='',top=''
+  if(t<13){
+    const gOp=.07*seg(t,0,.6)*(1-seg(t,6,7.5))
+    if(gOp>0)mapS+=mapGrid(gOp)
+    if(t<9) STAMPS.forEach((st,i)=>{const t0=T_STAMP(i);if(t<t0)return;const k=seg(t,t0,t0+.14)
+      const fl=at(RT,0);mapS+=`<g transform="translate(${st[4]} ${st[5]}) rotate(${st[6]})">${stamp(st,k,1)}</g>`})
+    // plane along the route
+    const dFly=t<T_FLY0?0:t<T_PIN?RT.len*E.inOutSine(seg(t,T_FLY0,T_PIN))*.98+RT.len*.02*seg(t,T_FLY0,T_PIN):RT.len
+    const trOp=.85*(1-seg(t,11,12.5))
+    if(t>=T_FLY0) trailS+=trail(RT,dFly,CREAM,trOp)
+    if(t>=T_FLY0&&t<T_EXIT){let p
+      if(t<T_PIN)p=at(RT,dFly); else p=at(RX,RX.len*E.inCubic(seg(t,T_PIN,T_EXIT)))
+      top+=plane(p.x,p.y,p.ang,1.15)}
+    // red map pin drops into the postcard's hole
+    if(t>=T_PIN-.15){const k=E.outBack(seg(t,T_PIN-.15,T_PIN+.1));top+=mapPin(540,2474-60*(1-k),lerp(1.6,1,k))}
+  }else top+=mapPin(540,2474)
+  $('map').innerHTML=mapS;$('strings').innerHTML=trailS;$('kites').innerHTML=top
 
   // ── card transform ──
   const lift=E.inCubic(seg(t,37.5,38.4))
   let cx=540, cy=2900-2000*lift, rot=-2, sxF=1, skew=0
   // pendulum on the knot (S2)
-  let pend=0; if(t>=5.6&&t<9){const u=t-5.6;pend=14*Math.exp(-2.2*u)*Math.cos(5*u)}
+  let pend=0; if(t>=T_PIN&&t<10){const u=t-T_PIN;pend=12*Math.exp(-2.0*u)*Math.cos(5*u)}
   // S4 bonk jolt
   let jolt=0; if(t>=18.2&&t<19.2){const u=t-18.2;jolt=3*Math.exp(-5*u)*Math.cos(14*u)}
   // flips
@@ -253,6 +277,7 @@ window.renderAt=async(t)=>{
     side==='backP'
      ? `translate(540 ${3000-2600*lift}) scale(${sxF} 1) skewY(${skew})`
      : `translate(${px+jx} ${py}) scale(${z}) translate(${-ax} ${-ay}) translate(0 ${pivotY}) rotate(${rot+pend+jolt}) translate(0 ${-pivotY}) scale(${sxF} 1) skewY(${skew})`)
+  if(side==='backP'||t>=37.5)$('kites').innerHTML='';else if(t>=13)$('kites').innerHTML=`<g transform="translate(${px+jx} ${py}) scale(${z}) translate(${-ax} ${-ay}) translate(0 ${pivotY}) rotate(${rot+pend+jolt}) translate(0 ${-pivotY})">${mapPin(0,-426)}</g>`
   $('cardBack').innerHTML = side==='back' ? cardBackLandscape() : side==='backP' ? cardBackPortrait(t) : ''
   $('cardFront').setAttribute('visibility', side==='front'?'visible':'hidden')
 
@@ -351,9 +376,14 @@ window.renderAt=async(t)=>{
   let end=''
   if(t>=37.5){const k=E.inOutSine(seg(t,37.6,38.6))
     end+=endScene(t,k)
-    const kb=8*Math.sin(t*2.2)
-    end+=`<g opacity="${k}">${braid(560,410+kb,560,-50,6,t)}${kite(520,330+kb,-10,LEAF,GOLD,.55)}${kite(600,322+kb,10,MARI,SIND,.55)}</g>`
-    const lines=[['#MaddyWedsSanny',88,GOLDL,860,'Cinzel'],['[DATE] · [VENUE]',44,CREAM,960,FONT_MIX],['ज़रूर आइएगा · আসবেন কিন্তু!',56,GOLDL,1060,"'Tiro Devanagari Hindi','Tiro Bangla',serif"],['Do come!',34,CREAM,1130,"'Cormorant Garamond',serif"]]
+    const H=th=>[540+14*16*Math.pow(Math.sin(th),3),430-14*(13*Math.cos(th)-5*Math.cos(2*th)-2*Math.cos(3*th)-Math.cos(4*th))]
+    const hk=E.inOutSine(seg(t,38.3,40.3)), th0=Math.PI, thN=th0+2*Math.PI*hk
+    let hs=''; for(let i=0;i<=120;i++){const th=th0+2*Math.PI*i/120;if(th>thN-.12)break;const [x,y]=H(th);hs+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="${GOLDL}"/>`}
+    let pl=''
+    if(t<40.3){const [x,y]=H(thN),[x2,y2]=H(thN+.02);pl=plane(x,y,Math.atan2(y2-y,x2-x)*180/Math.PI,.8)}
+    else {const u=E.inCubic(seg(t,40.3,41.3));const [x,y]=H(th0);pl=plane(x+700*u,y-260*u,-20,.8)}
+    end+=`<g opacity="${k}">${hs}${txt(540,465,'M ✈ S',40,GOLDL,{font:'Cinzel',weight:700,op:seg(t,39.6,40.2)})}${pl}</g>`
+    const lines=[['#MaddyWedsSanny',88,GOLDL,860,'Cinzel'],['[DATE] · [VENUE]',44,CREAM,960,FONT_MIX],['ज़रूर आइएगा · আসবেন কিন্তু!',56,GOLDL,1060,"'Tiro Devanagari Hindi','Tiro Bangla',serif"],['Pack your bags, and do come!',36,CREAM,1130,"'Cormorant Garamond',serif"]]
     lines.forEach(([s,sz,c,y,f],i)=>{const u=E.outCubic(seg(t,38.5+i*.2,38.9+i*.2));end+=txt(540,y+20*(1-u),s,sz,c,{font:f,weight:600,op:u})})
     const cr=seg(t,39.4,39.8)
     end+=txt(540,1860,'Portrait: [ARTIST]   ·   Music: “Sitar and tabla rendition”, Ashok Ayengar, CC BY-SA 4.0',20,CREAM,{op:.6*cr})
@@ -363,13 +393,13 @@ window.renderAt=async(t)=>{
   // ── HUD captions (screen space) ──
   let hud=''
   const pop=(t0)=>E.outBack(seg(t,t0,t0+.27))
-  if(t>=2&&t<4.2){const fade=1-seg(t,3.4,3.6);const strike=seg(t,3.4,3.55)
-    const c1=pop(2),c2=pop(2.4)
-    hud+=`<g opacity="${fade}"><g transform="translate(250 1380) rotate(-6) scale(${c1})">${txt(0,0,'वो काटा!',92,'#fff',{font:"'Tiro Devanagari Hindi',serif",stroke:NAVY,sw:8,weight:700})}${txt(0,52,'Cut it!',34,GOLDL)}<path d="M-180 -30 L${-180+360*strike} -30" stroke="${SIND}" stroke-width="8" stroke-linecap="round"/></g>`
-    if(t>=2.4)hud+=`<g transform="translate(830 1460) rotate(6) scale(${c2})">${txt(0,0,'ভোকাট্টা!',92,'#fff',{font:"'Tiro Bangla',serif",stroke:NAVY,sw:8,weight:700})}${txt(0,52,'Cut it!',34,GOLDL)}<path d="M-190 -30 L${-190+380*strike} -30" stroke="${SIND}" stroke-width="8" stroke-linecap="round"/></g>`
-    hud+='</g>'}
-  if(t>=3.6&&t<5.8){const k=seg(t,3.6,3.93)*(1-seg(t,5.5,5.8))
-    hud+=txt(540,1300,'जुड़ गए! · জুড়ে গেল!',84,GOLD,{font:"'Tiro Devanagari Hindi','Tiro Bangla',serif",op:k,stroke:NAVY,sw:6,weight:700})+txt(540,1360,'Joined!',38,CREAM,{op:k,font:"'Cormorant Garamond',serif"})}
+  if(t>=.3&&t<5.6){let n=0;STAMPS.forEach((_,i)=>{if(t>=T_STAMP(i)+.14)n=i+1});const k=seg(t,.3,.6)*(1-seg(t,5.2,5.5))
+    hud+=`<g transform="translate(540 150)" opacity="${k}"><rect x="-230" y="-40" width="460" height="72" rx="36" fill="${NAVY}" stroke="${GOLD}" stroke-width="3"/>${txt(0,8,`✈ TRAVEL LOG · ${String(n).padStart(2,'0')} STAMPS`,30,CREAM,{font:'Cinzel',weight:700})}</g>`}
+  if(t>=2.5&&t<5.6){const k=E.outCubic(seg(t,2.5,2.9))*(1-seg(t,5.2,5.5)),k2=E.outCubic(seg(t,2.8,3.2)),k3=E.outCubic(seg(t,3.1,3.5))
+    hud+=`<g opacity="${k}"><rect x="90" y="842" width="900" height="250" rx="30" fill="${NAVY}" opacity=".82" stroke="${GOLD}" stroke-width="3"/>`
+    hud+=txt(540,925+14*(1-k),'सफ़र में मिले, हमसफ़र बने',68,GOLDL,{font:"'Tiro Devanagari Hindi',serif",weight:700})
+    hud+=txt(540,1000+14*(1-k2),'পথে দেখা, পথেই সাথী',58,CREAM,{font:"'Tiro Bangla',serif",op:k2})
+    hud+=txt(540,1058+14*(1-k3),'Met on the road. Humsafar for life.',36,GOLDL,{font:"'Cormorant Garamond',serif",op:k3})+'</g>'}
   // S4 event chips
   const chips=[[13,'আইবুড়োভাত · Aiburobhat'],[14.2,'मेहंदी · মেহেন্দি · Mehendi'],[15.4,'हल्दी · গায়ে হলুদ · Haldi'],[16.6,'संगीत · Sangeet'],[17.8,'बारात · Baraat']]
   if(t>=13&&t<20){let cur=null;chips.forEach(c=>{if(t>=c[0])cur=c})
