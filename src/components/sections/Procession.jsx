@@ -54,11 +54,11 @@ function GhodiRider() {
         {/* ── far-side legs (in shadow, behind the body) ── */}
         <g opacity=".82">
           {/* far hind, stepping forward */}
-          <path d="M80 148 C 86 166, 94 176, 98 186 L 94 204 L 96 220 L 106 220 L 104 204 L 108 186 C 106 170, 102 158, 100 148 Z" fill="#d8ccb3" stroke="#9a8466" strokeWidth="1" />
+          <path d="M84 146 C 88 164, 94 176, 97 186 L 95 204 L 96 220 L 105 220 L 104 204 L 107 186 C 105 170, 102 158, 100 146 Z" fill="#d8ccb3" stroke="#9a8466" strokeWidth="1" />
           <path d="M94 200 L 96 220 L 106 220 L 104 200 Z" fill="url(#hSock)" />
           <path d="M93 218 h14 l2 7 h-18 z" fill="#2e2016" />
           {/* far fore, standing */}
-          <path d="M180 150 C 182 164, 184 178, 184 190 L 184 220 L 194 220 L 194 190 C 196 176, 198 162, 198 150 Z" fill="#d8ccb3" stroke="#9a8466" strokeWidth="1" />
+          <path d="M182 150 C 183 164, 185 178, 185 190 L 185 220 L 194 220 L 194 190 C 195 176, 197 162, 198 150 Z" fill="#d8ccb3" stroke="#9a8466" strokeWidth="1" />
           <path d="M184 198 L 184 220 L 194 220 L 194 198 Z" fill="url(#hSock)" />
           <path d="M182 218 h14 l2 7 h-18 z" fill="#2e2016" />
         </g>
@@ -66,6 +66,16 @@ function GhodiRider() {
         {/* tail — long and flowing */}
         <path d="M48 120 C 28 128, 18 150, 22 176 C 24 194, 16 208, 6 220 C 22 214, 34 200, 36 182 C 40 200, 34 214, 26 226 C 44 214, 50 194, 46 170 C 46 150, 52 134, 58 124 Z" fill="url(#hTail)" stroke="#b8ae9c" strokeWidth=".8" />
         <path d="M42 132 C 32 150, 32 172, 30 192 M48 140 C 42 160, 44 182, 38 204" stroke="#bdb5a5" strokeWidth=".8" fill="none" />
+
+        {/* ── near-side legs (tops tucked under the body so they join cleanly) ── */}
+        {/* near hind, planted back: gaskin → hock → cannon, same thickness as the forelegs */}
+        <path d="M56 136 C 54 158, 58 176, 62 194 L 73 194 C 75 178, 80 162, 84 140 Z" fill="url(#hCoat)" stroke="#9a8466" strokeWidth="1" />
+        <path d="M62 190 L 63 220 L 73 220 L 73 190 Z" fill="url(#hSock)" />
+        <path d="M60 218 h15 l2 7 h-19 z" fill="#2e2016" />
+        {/* near fore, raised and bent at the knee (prancing) */}
+        <path d="M188 146 C 198 156, 210 166, 222 176 L 228 182 C 226 188, 220 190, 215 187 L 206 179 C 198 172, 190 164, 184 154 Z" fill="url(#hCoat)" stroke="#9a8466" strokeWidth="1" />
+        <path d="M227 182 L 217 201 L 208 198 L 216 180 Z" fill="url(#hSock)" />
+        <path d="M208 196 l10 3 l-2 8 l-11 -4 z" fill="#2e2016" />
 
         {/* ── body, arched neck and head ── */}
         <path
@@ -117,16 +127,6 @@ function GhodiRider() {
           const y = 106 + t * 28
           return <path key={i} d={`M${x - 5} ${y} q5 12 10 0 z`} fill="#4f9d8f" stroke="#f2c14e" strokeWidth="1" />
         })}
-
-        {/* ── near-side legs ── */}
-        {/* near hind, planted back */}
-        <path d="M46 130 C 40 150, 46 168, 56 180 C 58 186, 58 192, 60 198 L 72 198 C 72 188, 74 178, 78 166 C 82 150, 80 138, 76 128 Z" fill="url(#hCoat)" stroke="#9a8466" strokeWidth="1" />
-        <path d="M60 196 L 62 220 L 72 220 L 72 196 Z" fill="url(#hSock)" />
-        <path d="M59 218 h15 l2 7 h-19 z" fill="#2e2016" />
-        {/* near fore, raised and bent at the knee (prancing) */}
-        <path d="M196 146 C 204 154, 212 162, 218 170 L 228 180 C 226 186, 220 188, 215 186 L 206 174 C 200 168, 194 160, 190 152 Z" fill="url(#hCoat)" stroke="#9a8466" strokeWidth="1" />
-        <path d="M224 178 L 215 198 L 207 196 L 215 176 Z" fill="url(#hSock)" />
-        <path d="M207 194 l9 3 l-2 8 l-10 -4 z" fill="#2e2016" />
 
         {/* ornamental swirls on the hindquarter and shoulder */}
         <g stroke="#c9b27a" strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".85">
