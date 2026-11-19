@@ -50,7 +50,7 @@ const inviteConfig = {
       about: '[A LINE ABOUT SAYANTANI — e.g. a Kolkata girl who hums Rabindrasangeet and never says no to phuchka.]',
       image: null, // '/images/bride.jpg'
     },
-    hashtag: '#MadhureshSayantani', // [#MADHURESHSAYANTANI / PLACEHOLDER]
+    hashtag: '#MaddyWedsSanny',
     monogram: 'M ✦ S',
   },
 
@@ -199,7 +199,7 @@ const inviteConfig = {
   ],
 
   thingsToKnow: [
-    { icon: 'hashtag', title: 'Wedding Hashtag', text: 'Share your moments with #MadhureshSayantani' }, // [#MADHURESHSAYANTANI / PLACEHOLDER]
+    { icon: 'hashtag', title: 'Wedding Hashtag', text: 'Share your moments with #MaddyWedsSanny' },
     { icon: 'weather', title: 'Weather', text: '[EXPECTED WEATHER NOTE — e.g. Pleasant February evenings, 14–24°C. Carry a light shawl.]' },
     { icon: 'parking', title: 'Parking & Hospitality', text: '[PARKING / ACCOMMODATION NOTE — e.g. Valet at the venue; rooms reserved at the hotel for outstation guests.]' },
   ],

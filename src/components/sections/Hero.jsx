@@ -33,6 +33,7 @@ function Crest() {
         {bride.name.toUpperCase()}
       </h1>
       <p className="mt-4 font-sans text-xs uppercase tracking-[0.35em] text-white/85">{config.wedding.dateDisplay}</p>
+      <p className="gold-text mt-3 font-serif text-[clamp(1.15rem,4.6vw,1.6rem)] italic tracking-[0.06em] drop-shadow">{config.couple.hashtag}</p>
     </div>
   )
 }
