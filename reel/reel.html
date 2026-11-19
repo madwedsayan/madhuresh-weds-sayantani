@@ -1,0 +1,394 @@
+<!doctype html><html><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Kalam:wght@400;700&family=Homemade+Apple&family=Plus+Jakarta+Sans:wght@500;700&family=Tiro+Devanagari+Hindi&family=Tiro+Bangla&display=swap" rel="stylesheet">
+<style>html,body{margin:0;width:1080px;height:1920px;overflow:hidden;background:#1a1446}svg{display:block}
+text{paint-order:stroke}</style></head><body>
+<svg id="stage" width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <radialGradient id="sky" cx="50%" cy="36%" r="70%"><stop offset="0" stop-color="#2a2160"/><stop offset="1" stop-color="#1a1446"/></radialGradient>
+  <linearGradient id="brass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f2d38a"/><stop offset=".5" stop-color="#d9a441"/><stop offset="1" stop-color="#8a6420"/></linearGradient>
+  <linearGradient id="river" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a2a6a"/><stop offset="1" stop-color="#0b0a26"/></linearGradient>
+  <radialGradient id="glow" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#ffe7a8" stop-opacity=".9"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
+  <filter id="paperShadow" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity=".45"/></filter>
+  <path id="ringPath" d="M -112 0 A 112 112 0 1 1 112 0 A 112 112 0 1 1 -112 0"/>
+</defs>
+<rect width="1080" height="1920" fill="url(#sky)"/>
+<g id="stars"></g>
+<g id="world">
+  <g id="strings"></g>
+  <g id="card">
+    <g id="cardBack"></g>
+    <g id="cardFront">
+      <g id="frontBase"></g>
+      <image id="portrait" href="assets/couple.png" x="-480" y="-430" width="960" height="664.5"/>
+      <g id="frontDyn1"></g>
+      <image id="sg" href="assets/sunglasses.png" width="236.25" height="86.25" visibility="hidden"/>
+      <g id="frontDyn2"></g>
+    </g>
+    <g id="cardTop"></g>
+  </g>
+  <g id="kites"></g>
+</g>
+<g id="end"></g>
+<g id="hud"></g>
+<g opacity="0"><text font-family="Homemade Apple">Madhuresh &amp; Sayantani</text><text font-family="Kalam" font-weight="700">From To</text><text font-family="Kalam">From To</text><text font-family="Cinzel" font-weight="700">MR MRS</text><text font-family="Cinzel" font-weight="600">A</text><text font-family="Tiro Devanagari Hindi">मधुरेश वो काटा</text><text font-family="Tiro Bangla">সায়ন্তনী ভোকাট্টা</text><text font-family="Cormorant Garamond">Joined</text><text font-family="Plus Jakarta Sans" font-weight="700">Baraat</text></g>
+</svg>
+<script>
+// ───────── helpers ─────────
+const clamp=(v,a=0,b=1)=>Math.min(b,Math.max(a,v))
+const seg=(t,a,b)=>clamp((t-a)/(b-a))
+const lerp=(a,b,k)=>a+(b-a)*k
+const E={
+  outCubic:k=>1-Math.pow(1-k,3), inCubic:k=>k*k*k, inOutCubic:k=>k<.5?4*k*k*k:1-Math.pow(-2*k+2,3)/2,
+  inOutSine:k=>-(Math.cos(Math.PI*k)-1)/2, outQuart:k=>1-Math.pow(1-k,4), inOutQuad:k=>k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2,
+  outBack:k=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(k-1,3)+c1*Math.pow(k-1,2)},
+}
+function rng(seed){let s=seed>>>0;return()=>(s=(s*1664525+1013904223)>>>0)/4294967296}
+const $=id=>document.getElementById(id)
+const NAVY='#1a1446', GOLD='#d9a441', GOLDL='#f2d38a', SIND='#c1121f', CREAM='#fbf3e4', MARI='#f59f00', LEAF='#2f6b3a', INK='#1d2a5c'
+const FONT_MIX="'Plus Jakarta Sans','Tiro Devanagari Hindi','Tiro Bangla',sans-serif"
+const SERIF_MIX="'Cormorant Garamond','Tiro Devanagari Hindi','Tiro Bangla',serif"
+const HAND_MIX="'Kalam','Tiro Bangla',cursive"
+// portrait source px → card-local
+const P=(sx,sy)=>[-480+.75*sx,-430+.75*sy]
+const txt=(x,y,s,size,fill,o={})=>`<text x="${x}" y="${y}" text-anchor="${o.anchor||'middle'}" font-family="${o.font||FONT_MIX}" font-size="${size}" font-weight="${o.weight||500}" fill="${fill}" ${o.stroke?`stroke="${o.stroke}" stroke-width="${o.sw||6}" stroke-linejoin="round"`:''} opacity="${o.op??1}" ${o.tr?`transform="${o.tr}"`:''} ${o.style?`style="${o.style}"`:''}>${s}</text>`
+const shake=(t,t0,A,dur,seed)=>{const k=(t-t0)/dur;if(k<0||k>1)return[0,0];const r=rng(seed+Math.floor((t-t0)*30));const d=A*Math.exp(-4*k);return[(r()*2-1)*d,(r()*2-1)*d]}
+
+// ───────── stars ─────────
+const starR=rng(7);const STARS=Array.from({length:44},()=>({x:starR()*1080,y:starR()*1920,r:1.2+starR()*2.2,o:.4+starR()*.5,ph:starR()*6}))
+function stars(t,dy){return STARS.map(s=>`<circle cx="${s.x}" cy="${((s.y+dy*.25)%1920+1920)%1920}" r="${s.r}" fill="${CREAM}" opacity="${(s.o*(.65+.35*Math.sin(t*2+s.ph))).toFixed(2)}"/>`).join('')}
+
+// ───────── kites ─────────
+function kite(x,y,rot,col,tail,s=1){
+  return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})">
+    <path d="M0 -84 L62 0 L0 96 L-62 0 Z" fill="${col}" stroke="#0b0a26" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M0 -84 L0 96 M-62 0 Q0 -26 62 0" stroke="#fbe7c0" stroke-width="3" fill="none" opacity=".85"/>
+    <path d="M-20 0 L0 -30 L20 0 L0 34 Z" fill="${tail}" opacity=".9"/>
+    <path d="M0 96 q 14 30 -6 58 q -20 28 4 60" stroke="${tail}" stroke-width="4" fill="none"/>
+    ${[0,1,2].map(i=>`<path d="M${(i%2?6:-6)} ${130+i*30} l-12 -8 l0 16 z M${(i%2?6:-6)} ${130+i*30} l12 -8 l0 16 z" fill="${tail}"/>`).join('')}
+  </g>`
+}
+function braid(ax,ay,bx,by,amp,t){ // two strands twisting between A and B
+  const n=40,dx=bx-ax,dy=by-ay,L=Math.hypot(dx,dy)||1,nx=-dy/L,ny=dx/L
+  const strand=ph=>{let d='';for(let i=0;i<=n;i++){const k=i/n;const w=amp*Math.sin(k*L/18+ph+t*6);d+=(i?'L':'M')+(ax+dx*k+nx*w).toFixed(1)+' '+(ay+dy*k+ny*w).toFixed(1)}return d}
+  return `<path d="${strand(0)}" stroke="#fbe7c0" stroke-width="3" fill="none"/><path d="${strand(Math.PI)}" stroke="${GOLDL}" stroke-width="3" fill="none"/>`
+}
+
+// ───────── card pieces ─────────
+const W=1000,H=900
+function deckle(w,h,seed){const r=rng(seed);let d='';const pts=[];const st=24
+  for(let x=-w/2;x<=w/2;x+=st)pts.push([x,-h/2+(r()-.5)*4])
+  for(let y=-h/2;y<=h/2;y+=st)pts.push([w/2+(r()-.5)*4,y])
+  for(let x=w/2;x>=-w/2;x-=st)pts.push([x,h/2+(r()-.5)*4])
+  for(let y=h/2;y>=-h/2;y-=st)pts.push([-w/2+(r()-.5)*4,y])
+  return 'M'+pts.map(p=>p.map(v=>v.toFixed(1)).join(' ')).join('L')+'Z'}
+const DECK=deckle(W,H,3), DECKP=deckle(1000,1390,5)
+$('frontBase').innerHTML=`<path d="${DECK}" fill="${CREAM}" filter="url(#paperShadow)"/><path d="${DECK}" fill="none" stroke="#e8d9bb" stroke-width="2"/><circle cx="0" cy="-428" r="9" fill="#e8d9bb" stroke="#bfa77a" stroke-width="2"/>`
+
+function rumiStamp(x,y,cancelled){
+  let perf='';for(let i=0;i<=10;i++){perf+=`<circle cx="${-75+i*15}" cy="-90" r="5" fill="${CREAM}"/><circle cx="${-75+i*15}" cy="90" r="5" fill="${CREAM}"/>`}
+  for(let i=0;i<=12;i++){perf+=`<circle cx="-75" cy="${-90+i*15}" r="5" fill="${CREAM}"/><circle cx="75" cy="${-90+i*15}" r="5" fill="${CREAM}"/>`}
+  return `<g transform="translate(${x} ${y})"><rect x="-75" y="-90" width="150" height="180" fill="${LEAF}"/>${perf}
+   <rect x="-62" y="-77" width="124" height="154" fill="none" stroke="${GOLDL}" stroke-width="2"/>
+   <path d="M-46 60 V-6 h92 V60 Z" fill="${GOLD}"/><path d="M-22 60 V12 q22 -30 44 0 V60 Z" fill="${LEAF}"/>
+   <path d="M-46 -6 q46 -52 92 0" fill="${GOLDL}"/><path d="M-6 -46 h12 v-10 q-6 -8 -12 0 z" fill="${GOLDL}"/>
+   <rect x="-54" y="-30" width="8" height="90" fill="${GOLDL}"/><rect x="46" y="-30" width="8" height="90" fill="${GOLDL}"/>
+   <text x="-54" y="-50" font-family="Cinzel" font-size="22" fill="${GOLDL}">₹5</text>
+   <text x="0" y="80" text-anchor="middle" font-family="Cinzel" font-size="13" fill="${GOLDL}">LUCKNOW</text>
+   ${cancelled?`<g stroke="${INK}" stroke-width="4" fill="none" opacity=".75">${[0,1,2].map(i=>`<path d="M-110 ${-30+i*26} q 30 -14 60 0 t 60 0 t 60 0 t 60 0"/>`).join('')}</g>`:''}</g>`
+}
+function cardBackLandscape(){
+  let lines='';for(let i=0;i<6;i++)lines+=`<path d="M-440 ${-120+i*80} H-40" stroke="#c9b48a" stroke-width="2"/>`
+  return `<path d="${DECK}" fill="${CREAM}" filter="url(#paperShadow)"/><path d="${DECK}" fill="none" stroke="#e8d9bb" stroke-width="2"/>
+  ${txt(0,-360,'POST CARD · पोस्ट कार्ड · পোস্টকার্ড',40,INK,{font:"'Cinzel','Tiro Devanagari Hindi','Tiro Bangla',serif",weight:700})}
+  <path d="M0 -300 V380" stroke="#c9b48a" stroke-width="3"/>${lines}
+  ${rumiStamp(360,-190,false)}
+  ${txt(60,80,'From: Lucknow 226001',44,INK,{anchor:'start',font:HAND_MIX})}<path d="M60 100 H460" stroke="#c9b48a" stroke-width="2"/>
+  ${txt(60,200,'To: Kolkata 700001',44,INK,{anchor:'start',font:HAND_MIX})}<path d="M60 220 H460" stroke="#c9b48a" stroke-width="2"/>
+  <circle cx="0" cy="-428" r="9" fill="#e8d9bb" stroke="#bfa77a" stroke-width="2"/>`
+}
+
+// overlays
+function thala(){return `<g><ellipse rx="150" ry="52" fill="url(#brass)" stroke="#8a6420" stroke-width="3"/><ellipse rx="128" ry="40" fill="#e9c46a"/>
+ <path d="M-60 -8 q40 -70 90 0 z" fill="#fffaf0" stroke="#e5dcc8"/>${[-100,-60,60,100,80].map((x,i)=>`<g transform="translate(${x} ${i===4?-30:6})"><ellipse rx="22" ry="10" fill="#c99a3a"/><ellipse rx="17" ry="7" fill="${['#f4a261','#2a9d8f','#e9c46a','#e76f51','#f6bd60'][i]}"/></g>`).join('')}
+ <g transform="translate(40 -14) rotate(-15)"><path d="M0 0 q30 -20 54 0 q-24 20 -54 0z" fill="#e76f51" stroke="#9c3d22" stroke-width="2"/><circle cx="12" cy="-2" r="3" fill="#222"/></g></g>`}
+function hennaHand(){return `<g><path d="M-40 160 C -44 100,-52 40,-58 0 C -62 -18,-46 -24,-40 -8 L -30 18 L -32 -56 C -32 -68,-14 -68,-14 -56 L -11 -8 L -8 -72 C -8 -84,10 -84,10 -72 L 10 -10 L 18 -66 C 20 -78,36 -76,35 -64 L 29 -5 L 40 -46 C 43 -58,59 -54,56 -42 L 43 32 C 40 72,37 104,35 160 Z" fill="#f3c6a2" stroke="#b07a52" stroke-width="2"/>
+ <g fill="none" stroke="#8a2a12" stroke-width="2"><circle cx="0" cy="32" r="16"/><circle cx="0" cy="32" r="8"/><path d="M-24 66 q24 12 48 0 M-26 80 q26 12 52 0"/></g>
+ <text x="0" y="38" text-anchor="middle" font-family="Kalam" font-size="13" font-weight="700" fill="#8a2a12">M</text>
+ ${[-23,-1,19,38].map((x,i)=>`<ellipse cx="${x}" cy="${-62+i*3+(i===0?6:0)}" rx="5" ry="7" fill="#c1121f"/>`).join('')}</g>`}
+function haldiPrint(){return `<g fill="#f2b705" opacity=".72" style="mix-blend-mode:multiply"><ellipse rx="34" ry="40"/>${[-26,-9,9,26].map((x,i)=>`<ellipse cx="${x}" cy="${-58-(i%3?6:0)}" rx="9" ry="22" transform="rotate(${x/3} ${x} -50)"/>`).join('')}<ellipse cx="42" cy="2" rx="9" ry="20" transform="rotate(40 42 2)"/></g>`}
+function dholki(){return `<g><path d="M-80 -40 Q0 -62 80 -40 Q96 0 80 40 Q0 62 -80 40 Q-96 0 -80 -40Z" fill="${SIND}" stroke="#5a0d17" stroke-width="3"/>
+ ${[-60,-30,0,30,60].map(x=>`<path d="M${x} -54 L${x+14} 52" stroke="${GOLDL}" stroke-width="3"/>`).join('')}
+ <ellipse cx="-84" cy="0" rx="14" ry="42" fill="#f3e2c0" stroke="#5a0d17" stroke-width="3"/><ellipse cx="84" cy="0" rx="14" ry="42" fill="#e8d2a6" stroke="#5a0d17" stroke-width="3"/></g>`}
+function topor(){ // white shola topor: tall ornate cone with scalloped bands (base at 0,0)
+  return `<g><path d="M-62 0 C -60 -60,-34 -150,0 -230 C 34 -150,60 -60,62 0 Z" fill="#fffdf6" stroke="#cfc3a8" stroke-width="3"/>
+  ${[-30,-80,-130,-175].map((y,i)=>{const w=56-i*12;return `<path d="M${-w} ${y} q ${w/2} 14 ${w} 0 q ${w/2} 14 ${w} 0" fill="none" stroke="#d9a441" stroke-width="3"/>`}).join('')}
+  ${[-60,-110,-155].map(y=>`<circle cy="${y}" r="7" fill="${SIND}" stroke="#d9a441" stroke-width="2"/>`).join('')}
+  <path d="M-62 0 q62 26 124 0" fill="none" stroke="#d9a441" stroke-width="4"/>
+  <path d="M0 -230 l-8 -22 l8 6 l8 -6 z" fill="#d9a441"/></g>`}
+function paanLeaf(x,y,s,rot){return `<g transform="translate(${x} ${y}) rotate(${rot}) scale(${s})"><path d="M0 -90 C 60 -76, 84 -10, 0 92 C -84 -10, -60 -76, 0 -90 Z" fill="#3f8f4a" stroke="#1f4d27" stroke-width="3"/><path d="M0 -88 V86 M0 -30 l-34 -18 M0 0 l36 -22 M0 30 l-30 -16" stroke="#a7d98f" stroke-width="2" fill="none"/></g>`}
+function glint(x,y,s){return `<path transform="translate(${x} ${y}) scale(${s})" d="M0 -14 L3 -3 L14 0 L3 3 L0 14 L-3 3 L-14 0 L-3 -3 Z" fill="#fff"/>`}
+function hairPatch(){ // the painting with the sunglasses inpainted out, plus a faint parting
+  const [x,y]=P(300,20)
+  return `<image href="assets/noglasses_patch.png" x="${x}" y="${y}" width="${340*.75}" height="${150*.75}"/>
+   <path d="M${P(462,184).join(' ')} Q ${P(465,140).join(' ')} ${P(470,104).join(' ')}" stroke="#d9b48f" stroke-width="3" fill="none" stroke-linecap="round" opacity=".8"/>`
+}
+const EYES=[{c:[350,340],rx:13,ry:20,d:[7,-4]},{c:[512,378],rx:13,ry:20,d:[7,-4]},{c:[750,318],rx:14,ry:21,d:[-7,4]},{c:[908,255],rx:13,ry:21,d:[-7,4]}]
+const SKIN=['#fee6bf','#fde1ba','#fde5bf','#fddfb9']
+function banner(text,dent){ // ribbon across the card top
+  return `<g transform="translate(0 -488) skewX(${dent})"><path d="M-330 -46 H330 L300 0 L330 46 H-330 L-300 0 Z" fill="${SIND}" stroke="${GOLD}" stroke-width="4"/>
+   <path d="M-306 -34 H306 M-306 34 H306" stroke="${GOLDL}" stroke-width="1.5" stroke-dasharray="4 5"/>${text}</g>`}
+function postmark(op){return `<g opacity="${op}" style="mix-blend-mode:multiply"><circle r="142" fill="none" stroke="${NAVY}" stroke-width="7"/><circle r="92" fill="none" stroke="${NAVY}" stroke-width="4"/>
+  <text font-family="'Cinzel','Tiro Devanagari Hindi','Tiro Bangla',serif" font-size="27" font-weight="700" fill="${NAVY}"><textPath href="#ringPath" startOffset="0">LUCKNOW · लखनऊ · KOLKATA · কলকাতা ·</textPath></text>
+  ${txt(0,-4,'LKO ⇄ CCU',40,NAVY,{font:'Cinzel',weight:700})}${txt(0,38,'[DATE]',28,NAVY,{font:'Cinzel',weight:700})}
+  <g stroke="${NAVY}" stroke-width="6" fill="none">${[0,1,2].map(i=>`<path d="M150 ${-40+i*40} q 30 -14 60 0 t 60 0 t 60 0 t 60 0"/>`).join('')}</g></g>`}
+
+const EVENTS=[['আইবুড়োভাত · Aiburobhat','[DATE] · [VENUE]'],['मेहंदी · Mehendi','[DATE] · [VENUE]'],['हल्दी · গায়ে হলুদ · Haldi · Gaye Holud','[DATE] · [VENUE]'],['संगीत · Sangeet','[DATE] · [VENUE]'],['बारात · Baraat','[DATE] · [TIME] · [VENUE]'],['शुभ विवाह · শুভ বিবাহ · Shubh Vivah','[DATE] · [MUHURAT] · [VENUE]'],['Reception · বউভাত · Bou Bhaat','[DATE] · [VENUE]']]
+function cardBackPortrait(t){
+  let s=`<path d="${DECKP}" fill="${CREAM}" filter="url(#paperShadow)"/><path d="${DECKP}" fill="none" stroke="#e8d9bb" stroke-width="2"/>
+  <g transform="scale(-1 1) translate(0 -380)" opacity=".1">${postmark(1)}</g>
+  ${txt(-470,-590,'POST CARD · पोस्ट कार्ड · পোস্টকার্ড',36,INK,{anchor:'start',font:"'Cinzel','Tiro Devanagari Hindi','Tiro Bangla',serif",weight:700})}
+  ${rumiStamp(380,-530,true)}
+  ${txt(-470,-500,'You are invited to celebrate',34,INK,{anchor:'start',font:HAND_MIX})}`
+  EVENTS.forEach(([a,b],i)=>{const k=E.outCubic(seg(t,33.1+i*.133,33.1+i*.133+.25));const y=-400+i*118+12*(1-k)
+    s+=`<g opacity="${k}">${txt(-470,y,a,40,INK,{anchor:'start',font:"'Kalam','Tiro Devanagari Hindi','Tiro Bangla',cursive",weight:700})}${txt(-470,y+42,b,30,'#5b4a3a',{anchor:'start',font:HAND_MIX})}<path d="M-470 ${y+60} H470" stroke="#d8c79f" stroke-width="2"/></g>`})
+  s+=`${txt(470,600,'To: Kolkata 700001',40,INK,{anchor:'end',font:HAND_MIX})}${txt(470,650,'From: Lucknow 226001',30,'#5b4a3a',{anchor:'end',font:HAND_MIX})}`
+  return s
+}
+
+// end scene silhouettes
+function endScene(t,k){ // k: 0→1 rise-in
+  const dy=600*(1-k), G='#12301a', win='#ffcf7a'
+  const imambara=`<g fill="${G}"><rect x="0" y="1330" width="520" height="170"/><rect x="0" y="1322" width="520" height="10"/>
+    ${Array.from({length:13}).map((_,i)=>i>3&&i<9?'':`<path d="M${12+i*40} 1324 c0 -26 30 -26 30 0z"/>`).join('')}
+    <rect x="150" y="1250" width="220" height="250"/><rect x="144" y="1244" width="232" height="8"/>${Array.from({length:14}).map((_,i)=>`<rect x="${150+i*16}" y="1234" width="8" height="12"/>`).join('')}
+    <rect x="132" y="1200" width="26" height="300"/><rect x="362" y="1200" width="26" height="300"/><path d="M126 1202 c0 -36 38 -36 38 0z M356 1202 c0 -36 38 -36 38 0z"/></g>
+    ${[190,240,290,330].map((x,i)=>`<path d="M${x-14} 1500 V1456 q14 -24 28 0 V1500 Z" fill="${win}" opacity="${.65+.2*Math.sin(t*3+i)}"/>`).join('')}
+    ${Array.from({length:8}).map((_,i)=>`<rect x="${168+i*24}" y="1270" width="10" height="20" rx="5" fill="${win}" opacity=".6"/>`).join('')}`
+  const howrah=`<g stroke="${G}" fill="none" stroke-width="10" stroke-linejoin="round"><path d="M560 1500 H1080" stroke-width="14"/>
+    <path d="M560 1500 L640 1300 L690 1300 Q 850 1420 1010 1300 L1060 1300 L1120 1500"/><path d="M640 1300 V1500 M690 1300 V1500 M1010 1300 V1500 M1060 1300 V1500" stroke-width="6"/>
+    ${Array.from({length:13}).map((_,i)=>{const x=710+i*23,tt=(x-690)/320,y=1300+4*120*tt*(1-tt)*.5;return `<path d="M${x} ${y} V1500" stroke-width="2.5"/>`}).join('')}</g>
+    ${Array.from({length:22}).map((_,i)=>`<circle cx="${572+i*24}" cy="1494" r="3" fill="${win}" opacity="${.6+.3*Math.sin(t*4+i)}"/>`).join('')}`
+  const sky=imambara+howrah
+  const ripple=Math.sin(t*2)*1.5
+  return `<g transform="translate(0 ${dy})">
+   <rect y="1500" width="1080" height="420" fill="url(#river)"/>
+   <g transform="translate(0 3000) scale(1 -1) skewX(${ripple})" opacity=".3">${sky}</g>
+   <rect y="1500" width="1080" height="420" fill="#0b0a26" opacity=".25"/>
+   ${Array.from({length:10}).map((_,i)=>`<path d="M${(i*137+t*40)%1200-100} ${1540+i*34} q 30 -5 60 0" stroke="${GOLDL}" stroke-opacity=".35" stroke-width="2" fill="none"/>`).join('')}
+   ${sky}
+   ${Array.from({length:6}).map((_,i)=>{const x=(80+i*180+t*22)%1160-40,y=1580+(i%3)*90;return `<g transform="translate(${x} ${y+Math.sin(t*2+i)*4})"><ellipse cx="0" cy="-8" rx="22" ry="14" fill="url(#glow)"/><path d="M-14 0 q14 10 28 0 q-6 -4 -14 -4 q-8 0 -14 4z" fill="#b5562d"/><path d="M0 -5 q-5 -8 0 -15 q5 7 0 15" fill="#ffb703"/></g>`}).join('')}
+  </g>`
+}
+
+// ───────── main render ─────────
+let sgVisible=false
+window.renderAt=async(t)=>{
+  // camera tilt (S2) and lift (S9)
+  const tilt=-2000*E.inOutSine(seg(t,5.5,6.9))
+  const [sx1,sy1]=shake(t,31.2,14,.4,99), [sx2,sy2]=shake(t,18.2,8,.3,55)
+  $('stars').innerHTML=stars(t,tilt)
+  $('world').setAttribute('transform',`translate(${sx1+sx2} ${tilt+sy1+sy2})`)
+
+  // ── kites ──
+  const kin=E.outCubic(seg(t,0,1.6))
+  let L=[lerp(-150,360,kin),lerp(1900,640,kin)], K=[lerp(1230,720,kin),lerp(1900,620,kin)]
+  const saw=seg(t,1.8,3.4)>0&&t<3.4?Math.sin((t-1.8)/1.6*Math.PI*2*3)*40:0
+  L[0]+=saw;K[0]-=saw
+  const join=E.inOutSine(seg(t,3.4,4.6))
+  L=[lerp(L[0],470,join),lerp(L[1],600,join)];K=[lerp(K[0],610,join),lerp(K[1],585,join)]
+  const sway=a=>6*Math.sin(t*1.3*2*Math.PI+a)*(1-join*.6)
+  // kites hidden in S3..S8 (above frame); in S9 shown small in end scene instead
+  let kitesSVG=''
+  if(t<9) kitesSVG=kite(L[0],L[1],sway(0)-8*join,LEAF,GOLD,1.4)+kite(K[0],K[1],sway(2)+8*join,MARI,SIND,1.4)
+  $('kites').innerHTML=kitesSVG
+
+  // ── strings / braid ──
+  let str=''
+  const jy=lerp(1150,800,E.inOutSine(seg(t,3.4,4.6)))
+  const knot=[540,2450]
+  if(t<9){
+    const lb=[L[0],L[1]+134],kb=[K[0],K[1]+134]
+    if(t<3.4){
+      const j=(seg(t,1.8,3.4)>0)?[(Math.random?0:0)+540+Math.sin(t*40)*4,1150]:[540,1150]
+      str+=`<path d="M${lb[0]} ${lb[1]} Q ${(lb[0]+1120)/2} ${(lb[1]+2000)/2+60} 1120 2000" stroke="#fbe7c0" stroke-width="2.5" fill="none"/>`
+      str+=`<path d="M${kb[0]} ${kb[1]} Q ${(kb[0]-40)/2} ${(kb[1]+2000)/2+60} -40 2000" stroke="${GOLDL}" stroke-width="2.5" fill="none"/>`
+    } else {
+      str+=`<path d="M${lb[0]} ${lb[1]} L540 ${jy}" stroke="#fbe7c0" stroke-width="2.5"/><path d="M${kb[0]} ${kb[1]} L540 ${jy}" stroke="${GOLDL}" stroke-width="2.5"/>`
+      const swing=E.inOutSine(seg(t,4.6,5.5))
+      const endX=lerp(lerp(540,700,1-seg(t,3.4,4.6)),540,swing), endY=t<5.5?lerp(2050,knot[1],swing*.0)+0:knot[1]
+      // below the junction: the braid down to the knot on the card (card hangs off-screen until the tilt)
+      str+=braid(540,jy,540,knot[1],7*seg(t,3.4,3.9),t)
+    }
+  }
+  $('strings').innerHTML=str
+
+  // ── card transform ──
+  const lift=E.inCubic(seg(t,37.5,38.4))
+  let cx=540, cy=2900-2000*lift, rot=-2, sxF=1, skew=0
+  // pendulum on the knot (S2)
+  let pend=0; if(t>=5.6&&t<9){const u=t-5.6;pend=14*Math.exp(-2.2*u)*Math.cos(5*u)}
+  // S4 bonk jolt
+  let jolt=0; if(t>=18.2&&t<19.2){const u=t-18.2;jolt=3*Math.exp(-5*u)*Math.cos(14*u)}
+  // flips
+  let side='back'
+  if(t<7.6) side='back'
+  else if(t<8.2){const k=E.inOutQuad(seg(t,7.6,8.2));sxF=Math.abs(Math.cos(Math.PI*k));skew=4*Math.sin(Math.PI*k);side=k<.5?'back':'front'}
+  else if(t<32.5) side='front'
+  else if(t<33.1){const k=E.inOutQuad(seg(t,32.5,33.1));sxF=Math.abs(Math.cos(Math.PI*k));skew=-4*Math.sin(Math.PI*k);side=k<.5?'front':'backP'}
+  else side='backP'
+  // zoom (S5 push-in to 1.7, S6 pull to 1.15, S7 back to 1)
+  let z=1,zk=0
+  if(t>=19&&t<20.8){zk=E.inOutCubic(seg(t,20,20.8))}
+  if(t>=20.8&&t<30)zk=1
+  if(t>=30&&t<31){zk=1-E.inOutCubic(seg(t,30,31))*.78}
+  if(t>=31&&t<32.5){zk=.22*(1-E.inOutCubic(seg(t,32,32.5)))}
+  z=1+.5*zk
+  const F=P(580,300)
+  const ax=F[0]*zk, ay=F[1]*zk
+  const px=cx, py=cy-40*zk
+  const jx=t>=18.2&&t<19.2?10*Math.exp(-5*(t-18.2))*Math.sin(20*(t-18.2)):0
+  if(side==='backP'){cy=1900-2000*lift; }
+  const pivotY=side==='backP'?0:-450
+  $('card').setAttribute('transform',
+    side==='backP'
+     ? `translate(540 ${3000-2600*lift}) scale(${sxF} 1) skewY(${skew})`
+     : `translate(${px+jx} ${py}) scale(${z}) translate(${-ax} ${-ay}) translate(0 ${pivotY}) rotate(${rot+pend+jolt}) translate(0 ${-pivotY}) scale(${sxF} 1) skewY(${skew})`)
+  $('cardBack').innerHTML = side==='back' ? cardBackLandscape() : side==='backP' ? cardBackPortrait(t) : ''
+  $('cardFront').setAttribute('visibility', side==='front'?'visible':'hidden')
+
+  // ── front overlays ──
+  let d1='', d2='', toporSVG=''
+  if(side==='front'){
+    // S4 overlays
+    const outK=E.inCubic(seg(t,20,20.8)) // fall-out during push-in
+    const bounce=(t0)=>E.outBack(seg(t,t0,t0+.3))
+    if(t>=13){const k=bounce(13);d2+=`<g transform="translate(${-330} ${lerp(720,430,k)+outK*500}) rotate(-6)" opacity="${1-outK}">${thala()}</g>`}
+    if(t>=14.2){const k=bounce(14.2);const wig=t<15.2?8*Math.sin((t-14.5)*14)*Math.exp(-(t-14.5)*3)*(t>14.5?1:0):0
+      d2+=`<g transform="translate(-420 ${lerp(760,250,k)+outK*600}) rotate(${12+wig}) scale(1.25)" opacity="${1-outK}">${hennaHand()}</g>`}
+    if(t>=15.4){const k=E.outBack(seg(t,15.4,15.55));const op=t<20?1:lerp(1,.3,seg(t,20,20.8));const a=P(300,385),b=P(960,280)
+      d1+=`<g opacity="${op}"><g transform="translate(${a[0]} ${a[1]}) rotate(-20) scale(${.75*k})">${haldiPrint()}</g><g transform="translate(${b[0]} ${b[1]}) rotate(25) scale(${.7*k})">${haldiPrint()}</g></g>`}
+    if(t>=16.6){const u=t-16.6;const hop=u<1.2?Math.abs(Math.sin(u/1.2*Math.PI*3))*40*Math.exp(-u):0;const k=bounce(16.6)
+      d2+=`<g transform="translate(360 ${lerp(700,420,k)-hop+outK*500}) rotate(-8)" opacity="${1-outK}">${dholki()}</g>`
+      const g=seg(t,16.7,17.1);if(g>0&&g<1){const a=P(730,300),b=P(890,238);d2+=glint(a[0],a[1],1.4*Math.sin(g*Math.PI))+glint(b[0],b[1],1.1*Math.sin(g*Math.PI))}}
+    // topor on Maddy (S4 → S6)
+    let toporTilt=8, toporY=0
+    if(t>=17.8){const k=seg(t,17.8,18.2);toporY=lerp(-900,0,E.inCubic(k));
+      if(t>=18.2&&t<18.9){toporTilt=lerp(0,8,E.outBack(seg(t,18.2,18.9)))} else if(t<18.2) toporTilt=0
+      if(t>=24.6)toporTilt=8+12*E.outBack(seg(t,24.6,24.9))
+      const c=P(842,64);toporSVG=`<g transform="translate(${c[0]} ${c[1]+toporY}) rotate(${toporTilt}) scale(1.05)">${topor()}</g>`}
+
+    // S5: eyes / fog / blush
+    const look=E.inOutSine(seg(t,21,21.66))
+    if(t>=21){
+      EYES.forEach((e,i)=>{const c=P(...e.c);d1+=`<ellipse cx="${c[0]}" cy="${c[1]}" rx="${(e.rx+5)*.75}" ry="${(e.ry+5)*.75}" fill="${SKIN[i]}"/>`})
+      EYES.forEach(e=>{const c=P(e.c[0]+e.d[0]*look,e.c[1]+e.d[1]*look);d1+=`<ellipse cx="${c[0]}" cy="${c[1]}" rx="${e.rx*.75}" ry="${e.ry*.75}" fill="#3b2f27"/><circle cx="${c[0]-2}" cy="${c[1]-5}" r="2.2" fill="#fff" opacity=".7"/>`})
+    }
+    if(t>=22.2){const f=E.outCubic(seg(t,22.2,23.0))*(1-seg(t,25,26.5)*.7)
+      ;[[748,325,52],[908,255,56]].forEach(([x,y,r],i)=>{const c=P(x,y);const rr=r*.75;d1+=`<defs><clipPath id="fog${i}"><rect x="${c[0]-rr}" y="${c[1]+rr-2*rr*f}" width="${2*rr}" height="${2*rr*f+1}"/></clipPath></defs><ellipse cx="${c[0]}" cy="${c[1]}" rx="${rr}" ry="${rr*.95}" fill="#f4f1ea" opacity=".6" clip-path="url(#fog${i})"/>`})
+      const bs=E.outCubic(seg(t,22.2,22.8)), bm=E.outCubic(seg(t,22.47,23.07))
+      ;[[300,388,bs],[545,448,bs],[703,362,bm],[962,282,bm]].forEach(([x,y,k])=>{const c=P(x,y);d1+=`<ellipse cx="${c[0]}" cy="${c[1]}" rx="30" ry="21" fill="#ef8c8c" opacity="${.55*k}" style="mix-blend-mode:multiply"/>`})}
+
+    // S6: sunglasses hop, sindoor, grains
+    sgVisible=t>=24
+    if(t>=24){
+      d1+=hairPatch()
+      const o=P(310,30) // sprite origin on Sanny
+      const dest=P(800-157,62-57) // sprite centred on Maddy's curls
+      const up=E.outCubic(seg(t,24,24.25))
+      const hop=seg(t,24.25,24.85)
+      let x=o[0], y=o[1]-30*up, r=0, sq=1
+      if(hop>0){const k=E.inOutSine(hop);x=lerp(o[0],dest[0],k);y=lerp(o[1]-30,dest[1],k)-120*Math.sin(Math.PI*k);r=lerp(-15,-6,k)}
+      if(t>=24.85){x=dest[0];y=dest[1];r=-6;const u=seg(t,24.85,24.97);sq=1-.12*Math.sin(Math.PI*u)}
+      $('sg').setAttribute('transform',`translate(${x} ${y}) rotate(${r} 118 43) translate(0 ${86*(1-sq)}) scale(1 ${sq})`)
+    }
+    if(t>=25){
+      const a=P(462,184),b=P(470,104)
+      const k=E.inOutSine(seg(t,25.2,26.1))
+      const L2=Math.hypot(b[0]-a[0],b[1]-a[1])
+      d1+=`<path d="M${a[0]} ${a[1]} L${b[0]} ${b[1]}" stroke="${SIND}" stroke-width="7" stroke-linecap="round" stroke-dasharray="${L2}" stroke-dashoffset="${L2*(1-k)}"/>`
+      // the ring comes from Maddy's side, then traces the parting
+      const enter=E.outCubic(seg(t,25,25.2)), start=P(640,230)
+      let rx=lerp(start[0],a[0],enter), ry=lerp(start[1],a[1],enter)
+      if(t>=25.2){rx=lerp(a[0],b[0],k);ry=lerp(a[1],b[1],k)}
+      const leave=seg(t,26.1,26.5)
+      if(leave<1) d2+=`<g transform="translate(${rx+leave*120} ${ry-leave*40})" opacity="${1-leave}"><circle r="13" fill="none" stroke="${GOLD}" stroke-width="6"/><circle cx="0" cy="-15" r="5" fill="${SIND}" stroke="${GOLDL}" stroke-width="1.5"/></g>`
+      // grains of sindoor fall onto her nose (the omen)
+      if(t>=26.1){const r2=rng(31);const nose=P(418,412);for(let i=0;i<5;i++){const t0=26.1+i*.06;const u=seg(t,t0,t0+.45);const sx0=a[0]+(r2()*2-1)*6,dx=(r2()*2-1)*4
+        const x=lerp(sx0,nose[0]+dx,u),y=lerp(a[1],nose[1]+(r2()*2-1)*3,u*u)
+        if(t>=t0)d1+=`<circle cx="${x}" cy="${y}" r="${i<4?2.6:1.8}" fill="${SIND}"/>`}}
+    }
+    // S7 postmark
+    if(t>=31){const c=P(630,520);const pre=seg(t,31,31.2)
+      if(t<31.2)d2+=`<circle cx="${c[0]}" cy="${c[1]+10}" r="${150*(1.4-.4*pre)}" fill="#000" opacity="${.18*pre}"/>`
+      else d2+=`<g transform="translate(${c[0]} ${c[1]}) rotate(-12)">${postmark(.85)}</g>`}
+
+    // banner (S3 11.6+) with the S6 name swap
+    if(t>=11.6){const u=E.outQuart(seg(t,11.6,12.07))
+      const dent=t>=18.2&&t<19?-10*Math.exp(-6*(t-18.2))*Math.cos(18*(t-18.2)):0
+      let inner
+      const BF="font-family=\"Cinzel\" font-weight=\"700\" font-size=\"54\" fill=\"#fbf3e4\" text-anchor=\"middle\""
+      if(t<28.5) inner=`<text x="0" y="18" ${BF}>Maddy weds Sanny</text>`
+      else if(t<29.3){const k=seg(t,28.5,28.8);inner=`<text x="0" y="18" ${BF} opacity="${1-k}">Maddy weds Sanny</text><text x="0" y="18" ${BF} opacity="${k}">Maddy &amp; Sanny</text>`}
+      else {const k1=E.outBack(seg(t,29.3,29.7)),k2=E.outBack(seg(t,29.43,29.83))
+        inner=`<clipPath id="bc"><rect x="-300" y="-40" width="600" height="80"/></clipPath><g clip-path="url(#bc)">
+          <text x="-120" y="${18-70*k1}" ${BF}>Maddy</text><text x="-120" y="${18+70-70*k1}" ${BF}>Mr</text>
+          <text x="0" y="18" ${BF}>&amp;</text>
+          <text x="125" y="${18-70*k2}" ${BF}>Sanny</text><text x="125" y="${18+70-70*k2}" ${BF}>Mrs</text></g>`}
+      d2+=`<defs><clipPath id="unroll"><rect x="-340" y="-560" width="${680*u}" height="160"/></clipPath></defs><g clip-path="url(#unroll)">${banner(inner,dent)}</g>`}
+
+    // S3 names in ink
+    if(t>=9){const k=seg(t,9.2,10.8);const w=900*k
+      d2+=`<defs><clipPath id="ink"><rect x="-450" y="250" width="${w}" height="140"/></clipPath></defs>
+       <g clip-path="url(#ink)"><text x="0" y="330" text-anchor="middle" font-family="Homemade Apple" font-size="54" fill="${INK}">Madhuresh &amp; Sayantani</text></g>`
+      if(k>0&&k<1)d2+=`<circle cx="${-450+w}" cy="${318+Math.sin(t*40)*10}" r="6" fill="${INK}"/>`
+      const tk=seg(t,11,11.4)
+      d2+=txt(0,410,'मधुरेश · সায়ন্তনী',44,'#a8781f',{font:"'Tiro Devanagari Hindi','Tiro Bangla',serif",op:tk})}
+  }
+  $('frontDyn1').innerHTML=d1;$('frontDyn2').innerHTML=d2+toporSVG
+  $('sg').setAttribute('visibility',side==='front'&&sgVisible?'visible':'hidden')
+
+  // ── end scene (S9) ──
+  let end=''
+  if(t>=37.5){const k=E.inOutSine(seg(t,37.6,38.6))
+    end+=endScene(t,k)
+    const kb=8*Math.sin(t*2.2)
+    end+=`<g opacity="${k}">${braid(560,410+kb,560,-50,6,t)}${kite(520,330+kb,-10,LEAF,GOLD,.55)}${kite(600,322+kb,10,MARI,SIND,.55)}</g>`
+    const lines=[['#MaddyWedsSanny',88,GOLDL,860,'Cinzel'],['[DATE] · [VENUE]',44,CREAM,960,FONT_MIX],['ज़रूर आइएगा · আসবেন কিন্তু!',56,GOLDL,1060,"'Tiro Devanagari Hindi','Tiro Bangla',serif"],['Do come!',34,CREAM,1130,"'Cormorant Garamond',serif"]]
+    lines.forEach(([s,sz,c,y,f],i)=>{const u=E.outCubic(seg(t,38.5+i*.2,38.9+i*.2));end+=txt(540,y+20*(1-u),s,sz,c,{font:f,weight:600,op:u})})
+    const cr=seg(t,39.4,39.8)
+    end+=txt(540,1860,'Portrait: [ARTIST]   ·   Music: “Sitar and tabla rendition”, Ashok Ayengar, CC BY-SA 4.0',20,CREAM,{op:.6*cr})
+  }
+  $('end').innerHTML=end
+
+  // ── HUD captions (screen space) ──
+  let hud=''
+  const pop=(t0)=>E.outBack(seg(t,t0,t0+.27))
+  if(t>=2&&t<4.2){const fade=1-seg(t,3.4,3.6);const strike=seg(t,3.4,3.55)
+    const c1=pop(2),c2=pop(2.4)
+    hud+=`<g opacity="${fade}"><g transform="translate(250 1380) rotate(-6) scale(${c1})">${txt(0,0,'वो काटा!',92,'#fff',{font:"'Tiro Devanagari Hindi',serif",stroke:NAVY,sw:8,weight:700})}${txt(0,52,'Cut it!',34,GOLDL)}<path d="M-180 -30 L${-180+360*strike} -30" stroke="${SIND}" stroke-width="8" stroke-linecap="round"/></g>`
+    if(t>=2.4)hud+=`<g transform="translate(830 1460) rotate(6) scale(${c2})">${txt(0,0,'ভোকাট্টা!',92,'#fff',{font:"'Tiro Bangla',serif",stroke:NAVY,sw:8,weight:700})}${txt(0,52,'Cut it!',34,GOLDL)}<path d="M-190 -30 L${-190+380*strike} -30" stroke="${SIND}" stroke-width="8" stroke-linecap="round"/></g>`
+    hud+='</g>'}
+  if(t>=3.6&&t<5.8){const k=seg(t,3.6,3.93)*(1-seg(t,5.5,5.8))
+    hud+=txt(540,1300,'जुड़ गए! · জুড়ে গেল!',84,GOLD,{font:"'Tiro Devanagari Hindi','Tiro Bangla',serif",op:k,stroke:NAVY,sw:6,weight:700})+txt(540,1360,'Joined!',38,CREAM,{op:k,font:"'Cormorant Garamond',serif"})}
+  // S4 event chips
+  const chips=[[13,'আইবুড়োভাত · Aiburobhat'],[14.2,'मेहंदी · মেহেন্দি · Mehendi'],[15.4,'हल्दी · গায়ে হলুদ · Haldi'],[16.6,'संगीत · Sangeet'],[17.8,'बारात · Baraat']]
+  if(t>=13&&t<20){let cur=null;chips.forEach(c=>{if(t>=c[0])cur=c})
+    const k=E.outCubic(seg(t,cur[0],cur[0]+.2));const out=seg(t,19.6,20)
+    hud+=`<g transform="translate(${540-60*(1-k)} 1520)" opacity="${k*(1-out)}"><rect x="-330" y="-48" width="660" height="80" rx="40" fill="${NAVY}" stroke="${GOLD}" stroke-width="3"/>${txt(0,8,cur[1],40,CREAM,{weight:700})}</g>`}
+  // S5 paan leaves at the frame edges + caption
+  if(t>=20&&t<24.4){const k=E.outCubic(seg(t,20.2,20.8))*(1-seg(t,24,24.4))
+    hud+=paanLeaf(-60+80*k,960,1.3,20)+paanLeaf(1140-80*k,960,1.3,-20)
+    const c=seg(t,23.2,23.6)*(1-seg(t,24,24.3))
+    hud+=txt(540,1560,'শুভদৃষ্টি · शुभ दृष्टि',62,GOLDL,{font:"'Tiro Bangla','Tiro Devanagari Hindi',serif",op:c,stroke:NAVY,sw:8,weight:700})+txt(540,1615,'The first look',38,CREAM,{op:c,stroke:NAVY,sw:5,font:"'Cormorant Garamond',serif"})}
+  // S6 omen caption
+  if(t>=26.7&&t<30.6){const c=seg(t,26.7,27.1)*(1-seg(t,30.2,30.6))
+    hud+=`<rect x="70" y="1420" width="940" height="230" rx="28" fill="${NAVY}" opacity="${.78*c}"/>`
+    hud+=txt(540,1490,'নাকে সিঁদুর পড়লে বর খুব ভালোবাসে',50,GOLDL,{font:"'Tiro Bangla',serif",op:c})
+    hud+=txt(540,1560,'नाक पे सिंदूर गिरा — पिया बहुत प्यार करेंगे',42,CREAM,{font:"'Tiro Devanagari Hindi',serif",op:c})
+    hud+=txt(540,1616,'Sindoor on her nose: he’ll love her very much.',32,CREAM,{font:"'Cormorant Garamond',serif",op:c})}
+  $('hud').innerHTML=hud
+  return true
+}
+window.reelReady=true
+const q=new URLSearchParams(location.search).get('t'); if(q) document.fonts.ready.then(()=>renderAt(+q))
+</script></body></html>
