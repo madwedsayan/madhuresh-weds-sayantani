@@ -21,7 +21,8 @@ function GhodiRider() {
         <path d="M130 70 v50" stroke="#c9a24b" strokeDasharray="2 4" />
         <ellipse cx="132" cy="58" rx="11" ry="13" fill="#c8956d" />
         <path d="M119 52 C 118 34, 146 34, 145 52 C 138 46, 126 46, 119 52 Z" fill="var(--sindoor)" />
-        <path d="M140 40 l8 -12 l-1 14 z" fill="#ffd166" />
+        <circle cx="139" cy="42" r="2.6" fill="#ffd166" />
+        <path d="M139 44.5 q-1.5 3 0 5 q1.5 -2 0 -5" fill="#ffd166" />
         {Array.from({ length: 6 }).map((_, i) => (
           <path key={i} d={`M${122 + i * 4} 50 v${20 + (i % 2) * 3}`} stroke="#fff" strokeWidth="1.6" strokeDasharray="1.5 2.5" strokeLinecap="round" />
         ))}
@@ -49,105 +50,104 @@ function GhodiRider() {
           <stop offset="1" stopColor="#9a2f1d" />
         </linearGradient>
       </defs>
-      <g style={{ animation: 'trot .6s ease-in-out infinite' }}>
-        {/* far legs (shaded) */}
-        <g stroke="url(#hSock)" strokeLinecap="round" fill="none" opacity=".8">
-          <path d="M94 150 L 100 184 L 94 200 L 98 222" strokeWidth="10" />
-          <path d="M190 150 L 192 186 L 192 220" strokeWidth="10" />
+      <g>
+        {/* ── far-side legs (in shadow, behind the body) ── */}
+        <g opacity=".82">
+          {/* far hind, stepping forward */}
+          <path d="M80 148 C 86 166, 94 176, 98 186 L 94 204 L 96 220 L 106 220 L 104 204 L 108 186 C 106 170, 102 158, 100 148 Z" fill="#d8ccb3" stroke="#9a8466" strokeWidth="1" />
+          <path d="M94 200 L 96 220 L 106 220 L 104 200 Z" fill="url(#hSock)" />
+          <path d="M93 218 h14 l2 7 h-18 z" fill="#2e2016" />
+          {/* far fore, standing */}
+          <path d="M180 150 C 182 164, 184 178, 184 190 L 184 220 L 194 220 L 194 190 C 196 176, 198 162, 198 150 Z" fill="#d8ccb3" stroke="#9a8466" strokeWidth="1" />
+          <path d="M184 198 L 184 220 L 194 220 L 194 198 Z" fill="url(#hSock)" />
+          <path d="M182 218 h14 l2 7 h-18 z" fill="#2e2016" />
         </g>
-        <path d="M92 218 l12 0 l2 8 h-15 z M186 216 l12 0 l2 8 h-15 z" fill="#3b2a1d" opacity=".85" />
 
-        {/* tail, swaying */}
-        <g className="tail-sway">
-          <path d="M46 120 C 26 128, 18 150, 22 176 C 24 194, 16 208, 6 220 C 22 214, 34 200, 36 182 C 40 200, 34 214, 26 226 C 44 214, 50 194, 46 170 C 46 150, 52 134, 56 124 Z" fill="url(#hTail)" stroke="#b8ae9c" strokeWidth=".8" />
-          <path d="M40 132 C 30 150, 30 172, 30 192 M46 140 C 40 160, 42 182, 38 204" stroke="#bdb5a5" strokeWidth=".8" fill="none" />
-        </g>
+        {/* tail — long and flowing */}
+        <path d="M48 120 C 28 128, 18 150, 22 176 C 24 194, 16 208, 6 220 C 22 214, 34 200, 36 182 C 40 200, 34 214, 26 226 C 44 214, 50 194, 46 170 C 46 150, 52 134, 58 124 Z" fill="url(#hTail)" stroke="#b8ae9c" strokeWidth=".8" />
+        <path d="M42 132 C 32 150, 32 172, 30 192 M48 140 C 42 160, 44 182, 38 204" stroke="#bdb5a5" strokeWidth=".8" fill="none" />
 
-        {/* near hind leg */}
-        <path d="M58 132 C 52 150, 52 166, 60 178 L 64 196 L 66 220" stroke="url(#hCoat)" strokeWidth="1" fill="none" />
-        <path d="M44 130 C 40 150, 46 168, 56 180 C 58 186, 58 192, 60 198 L 70 198 C 70 190, 72 182, 74 172 C 80 156, 80 142, 76 130 Z" fill="url(#hCoat)" stroke="#9a8466" strokeWidth="1" />
-        <path d="M60 196 L 62 220 L 72 220 L 70 196 Z" fill="url(#hSock)" />
-        <path d="M59 218 h15 l2 8 h-19 z" fill="#2e2016" />
-
-        {/* body + neck + head */}
+        {/* ── body, arched neck and head ── */}
         <path
-          d="M46 118 C 52 100, 80 96, 110 104 C 140 110, 165 106, 182 96 C 196 80, 206 58, 220 42 L 225 22 L 231 38 C 240 40, 248 50, 254 66 C 258 76, 262 84, 256 90 C 250 94, 242 92, 236 86 C 230 82, 226 82, 222 86 C 216 100, 214 116, 212 132 C 210 146, 200 156, 186 158 C 160 164, 110 164, 84 160 C 68 158, 52 154, 44 142 C 38 134, 40 124, 46 118 Z"
+          d="M48 120 C 54 98, 84 94, 112 102 C 140 108, 162 104, 178 96 C 184 74, 200 50, 218 40 C 224 36, 230 36, 234 40 C 244 46, 252 58, 258 72 C 262 80, 262 88, 256 92 C 250 96, 242 94, 238 90 C 232 86, 228 84, 224 88 C 216 98, 214 114, 214 128 C 214 144, 204 154, 190 158 C 164 164, 112 164, 88 160 C 70 158, 54 152, 46 140 C 40 132, 42 126, 48 120 Z"
           fill="url(#hCoat)"
           stroke="#9a8466"
           strokeWidth="1.2"
         />
-        {/* muzzle shading, eye, nostril */}
-        <path d="M248 74 C 256 78, 260 84, 256 90 C 250 94, 242 92, 238 88 C 242 84, 246 80, 248 74 Z" fill="#7d6a58" opacity=".55" />
-        <ellipse cx="238" cy="54" rx="3.2" ry="2.4" fill="#2b1a12" />
-        <circle cx="239" cy="53" r=".9" fill="#fff" />
-        <path d="M252 82 q2 -2 4 0" stroke="#3b2a1d" strokeWidth="1.2" fill="none" />
+        {/* ears */}
+        <path d="M226 40 L 228 24 L 235 38 Z" fill="#efe6d2" stroke="#9a8466" strokeWidth="1" />
+        <path d="M222 41 L 220 27 L 228 38 Z" fill="#d8ccb3" stroke="#9a8466" strokeWidth=".8" />
+        {/* muzzle shading, eye, nostril, mouth */}
+        <path d="M252 72 C 260 78, 263 86, 256 92 C 250 96, 242 94, 239 90 C 244 86, 249 80, 252 72 Z" fill="#7d6a58" opacity=".5" />
+        <ellipse cx="240" cy="55" rx="3.2" ry="2.3" fill="#2b1a12" />
+        <circle cx="241" cy="54" r=".9" fill="#fff" />
+        <path d="M253 82 q2 -2 4 0" stroke="#3b2a1d" strokeWidth="1.2" fill="none" />
+        <path d="M240 91 q4 2 8 1" stroke="#5a4636" strokeWidth=".8" fill="none" />
+        {/* jaw + neck muscle lines */}
+        <path d="M226 86 C 232 76, 236 70, 238 62" stroke="#cdbd9e" strokeWidth="1" fill="none" />
 
-        {/* mane under a quilted gold-red neck cover */}
-        <path d="M184 96 C 198 78, 208 58, 220 42 C 216 60, 212 80, 206 98 C 200 104, 192 104, 184 96 Z" fill="#c8492f" stroke="#d9a441" strokeWidth="1.5" />
+        {/* mane under a quilted red-gold neck cover */}
+        <path d="M178 96 C 184 74, 200 50, 218 40 C 214 60, 210 80, 204 100 C 196 106, 186 104, 178 96 Z" fill="#c8492f" stroke="#d9a441" strokeWidth="1.5" />
         {[0, 1, 2, 3, 4].map((i) => (
-          <path key={i} d={`M${190 + i * 6} ${94 - i * 11} l6 8`} stroke="#f2c14e" strokeWidth="1.6" />
+          <path key={i} d={`M${184 + i * 6} ${92 - i * 11} l7 7`} stroke="#f2c14e" strokeWidth="1.6" />
         ))}
-        <path d="M220 42 c-4 -4 -10 -2 -12 4 c 4 -2 8 -2 12 -4" fill="#efe9de" />
-        {/* quilting on the neck */}
-        <path d="M200 104 q8 -14 14 -30 M206 116 q6 -16 10 -34" stroke="#d8cbb0" strokeWidth="1" fill="none" />
+        <path d="M218 40 c-5 -3 -10 0 -11 6 c 4 -3 8 -4 11 -6" fill="#efe9de" />
 
-        {/* bridle: browband, noseband, cheek strap, plume */}
+        {/* bridle: browband, noseband, cheek strap */}
         <g stroke="#b8402a" strokeWidth="3" fill="none" strokeLinecap="round">
-          <path d="M226 40 L 244 50" />
-          <path d="M240 72 L 254 68" />
-          <path d="M230 42 L 240 72" />
-          <path d="M240 72 L 236 86" />
+          <path d="M228 42 L 246 52" />
+          <path d="M243 74 L 257 70" />
+          <path d="M232 44 L 243 74" />
+          <path d="M243 74 L 238 89" />
         </g>
         <g fill="#f2c14e">
-          {[[234, 45], [242, 49], [247, 69], [236, 58]].map(([x, y]) => (
+          {[[236, 47], [243, 51], [250, 71], [238, 60]].map(([x, y]) => (
             <circle key={`${x}${y}`} cx={x} cy={y} r="1.6" />
           ))}
         </g>
-        <path d="M226 28 q-6 -16 6 -24 q-1 12 0 24" fill="#f2c14e" stroke="#c8492f" strokeWidth=".8" />
         {/* reins to the groom's hand */}
-        <path d="M250 88 C 222 104, 196 102, 170 98" stroke="#7a4a25" strokeWidth="1.6" fill="none" />
+        <path d="M252 90 C 224 106, 196 102, 170 98" stroke="#7a4a25" strokeWidth="1.6" fill="none" />
 
-        {/* breastplate with teal scalloped pendants */}
-        <path d="M182 100 C 196 112, 206 126, 212 134" stroke="#c8492f" strokeWidth="7" fill="none" strokeLinecap="round" />
-        <path d="M182 100 C 196 112, 206 126, 212 134" stroke="#f2c14e" strokeWidth="1.4" strokeDasharray="3 3" fill="none" />
+        {/* collar band + teal scalloped breastplate */}
+        <path d="M178 100 C 192 112, 204 124, 214 132" stroke="#c8492f" strokeWidth="7" fill="none" strokeLinecap="round" />
+        <path d="M178 100 C 192 112, 204 124, 214 132" stroke="#f2c14e" strokeWidth="1.4" strokeDasharray="3 3" fill="none" />
         {[0, 1, 2, 3, 4].map((i) => {
           const t = i / 4
-          const x = 184 + t * 26
-          const y = 106 + t * 30 - (1 - t) * t * 6
-          return (
-            <path key={i} d={`M${x - 5} ${y} q5 12 10 0 z`} fill="#4f9d8f" stroke="#f2c14e" strokeWidth="1" />
-          )
+          const x = 181 + t * 30
+          const y = 106 + t * 28
+          return <path key={i} d={`M${x - 5} ${y} q5 12 10 0 z`} fill="#4f9d8f" stroke="#f2c14e" strokeWidth="1" />
         })}
 
-        {/* near foreleg — raised, knee bent (prancing) */}
-        <path d="M200 146 C 206 152, 212 160, 218 168 L 226 178 C 224 184, 218 186, 214 184 L 206 172 C 200 166, 192 158, 190 150 Z" fill="url(#hCoat)" stroke="#9a8466" strokeWidth="1" />
-        <path d="M222 176 L 214 196 L 206 194 L 214 174 Z" fill="url(#hSock)" />
-        <path d="M206 192 l9 3 l-2 8 l-10 -4 z" fill="#2e2016" />
-        {/* near hind/front standing leg (shoulder side) */}
-        <path d="M168 150 C 172 160, 174 176, 174 188 L 176 220 L 186 220 L 186 188 C 188 176, 188 162, 186 152 Z" fill="url(#hCoat)" stroke="#9a8466" strokeWidth="1" />
-        <path d="M175 196 L 176 220 L 186 220 L 186 196 Z" fill="url(#hSock)" />
-        <path d="M173 218 h15 l2 8 h-19 z" fill="#2e2016" />
+        {/* ── near-side legs ── */}
+        {/* near hind, planted back */}
+        <path d="M46 130 C 40 150, 46 168, 56 180 C 58 186, 58 192, 60 198 L 72 198 C 72 188, 74 178, 78 166 C 82 150, 80 138, 76 128 Z" fill="url(#hCoat)" stroke="#9a8466" strokeWidth="1" />
+        <path d="M60 196 L 62 220 L 72 220 L 72 196 Z" fill="url(#hSock)" />
+        <path d="M59 218 h15 l2 7 h-19 z" fill="#2e2016" />
+        {/* near fore, raised and bent at the knee (prancing) */}
+        <path d="M196 146 C 204 154, 212 162, 218 170 L 228 180 C 226 186, 220 188, 215 186 L 206 174 C 200 168, 194 160, 190 152 Z" fill="url(#hCoat)" stroke="#9a8466" strokeWidth="1" />
+        <path d="M224 178 L 215 198 L 207 196 L 215 176 Z" fill="url(#hSock)" />
+        <path d="M207 194 l9 3 l-2 8 l-10 -4 z" fill="#2e2016" />
 
-        {/* ornamental swirls on the hindquarter and shoulder (like painted mehendi) */}
+        {/* ornamental swirls on the hindquarter and shoulder */}
         <g stroke="#c9b27a" strokeWidth="1.2" fill="none" strokeLinecap="round" opacity=".85">
           <path d="M56 140 c 4 -10, 16 -10, 16 0 c 0 6, -8 8, -10 2" />
           <path d="M60 160 c 6 4, 12 0, 10 -6" />
-          <path d="M176 140 c 6 -6, 14 -2, 12 6 c -2 4, -8 4, -8 0" />
+          <path d="M184 140 c 6 -6, 14 -2, 12 6 c -2 4, -8 4, -8 0" />
         </g>
 
-        {/* saddle cloth: red with gold border, brocade dots and a tasselled hem */}
-        <path d="M84 104 C 110 100, 150 100, 172 102 L 170 150 C 150 156, 110 158, 88 152 Z" fill="url(#hCloth)" stroke="#d9a441" strokeWidth="2.5" />
-        <path d="M92 112 C 114 108, 148 108, 164 110 L 162 144 C 144 148, 112 150, 96 146 Z" fill="none" stroke="#f2c14e" strokeWidth="1" strokeDasharray="2 3" />
+        {/* saddle cloth: red with gold border, brocade and tasselled hem */}
+        <path d="M84 104 C 110 100, 150 100, 170 102 L 168 150 C 150 156, 110 158, 88 152 Z" fill="url(#hCloth)" stroke="#d9a441" strokeWidth="2.5" />
+        <path d="M92 112 C 114 108, 146 108, 162 110 L 160 144 C 144 148, 112 150, 96 146 Z" fill="none" stroke="#f2c14e" strokeWidth="1" strokeDasharray="2 3" />
         {Array.from({ length: 12 }).map((_, i) => (
-          <path key={i} d={`M${104 + (i % 4) * 16} ${118 + Math.floor(i / 4) * 10} q4 -4 8 0 q-4 4 -8 0`} fill="#e9b24f" opacity=".8" />
+          <path key={i} d={`M${104 + (i % 4) * 15} ${118 + Math.floor(i / 4) * 10} q4 -4 8 0 q-4 4 -8 0`} fill="#e9b24f" opacity=".8" />
         ))}
         {Array.from({ length: 9 }).map((_, i) => (
-          <path key={i} d={`M${92 + i * 9.4} ${151 + Math.sin(i) * 1.2} v6`} stroke="#f2c14e" strokeWidth="2" strokeLinecap="round" />
+          <path key={i} d={`M${92 + i * 9.2} ${151 + Math.sin(i) * 1.2} v6`} stroke="#f2c14e" strokeWidth="2" strokeLinecap="round" />
         ))}
         {/* saddle */}
         <path d="M110 104 C 116 92, 128 92, 132 100 C 138 92, 150 92, 152 104 Z" fill="#b38b5d" stroke="#7a5a35" strokeWidth="1" />
         {/* marigold garland on the neck */}
-        <path d="M196 102 q12 26 22 0" stroke="#f59f00" strokeWidth="5" strokeDasharray="1 5" strokeLinecap="round" fill="none" />
+        <path d="M192 104 q12 26 22 0" stroke="#f59f00" strokeWidth="5" strokeDasharray="1 5" strokeLinecap="round" fill="none" />
       </g>
       {/* groom's leg + mojari in the stirrup (over the saddle cloth) */}
       <path d="M132 104 C 146 112, 152 126, 148 146" stroke="#c9a24b" strokeWidth="9" strokeLinecap="round" fill="none" />
@@ -155,7 +155,6 @@ function GhodiRider() {
       <path d="M140 108 v24" stroke="#7a5a35" strokeWidth="1.2" />
       <path d="M144 146 q8 -4 16 1 q-3 4 -16 3 z" fill="#c8492f" stroke="#f2c14e" strokeWidth="1" />
       <path d="M141 144 h12" stroke="#7a5a35" strokeWidth="2" strokeLinecap="round" />
-      <style>{`@keyframes trot { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-2.5px) } } .tail-sway { transform-box: fill-box; transform-origin: 80% 0%; animation: tail-sway 2.4s ease-in-out infinite } @keyframes tail-sway { 0%,100% { transform: rotate(-3deg) } 50% { transform: rotate(4deg) } }`}</style>
     </svg>
   )
 }

@@ -145,15 +145,18 @@ export default function Events() {
             उत्सव · <span className="font-bangla">উৎসব</span>
           </p>
           <h2 className="mt-2 font-display text-4xl tracking-[0.1em] md:text-6xl">The Celebrations</h2>
-          <p className="mx-auto mt-3 max-w-md font-serif text-xl italic opacity-85">Eight moments, two traditions — one beautiful beginning.</p>
+          <p className="mx-auto mt-3 max-w-md font-serif text-xl italic opacity-85">Seven moments, two traditions — one beautiful beginning.</p>
           <div className="mt-6 opacity-70">
             <AlponaDivider />
           </div>
         </div>
 
-        <div className="mt-14 grid gap-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        {/* flex-wrap + justify-center so an incomplete last row sits in the middle */}
+        <div className="mt-14 flex flex-wrap justify-center gap-10">
           {config.events.map((ev, i) => (
-            <EventCard key={ev.id} ev={ev} index={i} />
+            <div key={ev.id} className="w-full sm:w-[calc((100%-2.5rem)/2)] lg:w-[calc((100%-5rem)/3)] xl:w-[calc((100%-7.5rem)/4)]">
+              <EventCard ev={ev} index={i} />
+            </div>
           ))}
         </div>
       </div>
